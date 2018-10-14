@@ -33,6 +33,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.telephony.ims.feature.ImsFeature;
 import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.android.ims.ImsConfig;
@@ -41,11 +42,12 @@ import com.android.ims.ImsManager;
 
 import org.codeaurora.ims.internal.IQtiImsExt;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.QtiCallConstants;
 import org.codeaurora.ims.utils.QtiImsExtUtils;
 
 /**
- * Provides API's for IQtiImsExt Binder such as sending call deflect, call transfer etc
+ * Provides API's for IQtiImsExt Binder such as sending call transfer etc
  * This class is starting point for all the QtiImsExt actions.
  * You can acquire an instance of it by calling {@link getInstance getInstance()}
  *
@@ -63,7 +65,7 @@ public class QtiImsExtManager {
 
     /**
      * All the QtiImsExt actions are performed using this interface,
-     * this interface/binder provides API's such as sending call deflect,
+     * this interface/binder provides API's such as sending
      * call transfer etc
      */
     private IQtiImsExt mQtiImsExt;
@@ -119,18 +121,6 @@ public class QtiImsExtManager {
             mQtiImsExt.getPacketErrorCount(phoneId, listener);
         } catch(RemoteException e) {
             throw new QtiImsException("Remote ImsService getPacketErrorCount : " + e);
-        }
-    }
-
-    public void sendCallDeflectRequest(int phoneId, String deflectNumber,
-            IQtiImsExtListener listener) throws QtiImsException {
-        obtainBinder();
-        checkPhoneId(phoneId);
-        checkFeatureStatus(phoneId);
-        try {
-            mQtiImsExt.sendCallDeflectRequest(phoneId, deflectNumber, listener);
-        } catch(RemoteException e) {
-            throw new QtiImsException("Remote ImsService sendCallDeflectRequestCount : " + e);
         }
     }
 
@@ -290,7 +280,7 @@ public class QtiImsExtManager {
         if (mContext == null) throw new QtiImsException("Context is null");
 
         try {
-            if (ImsManager.getInstance(mContext, phoneId).getImsServiceStatus() !=
+            if (ImsManager.getInstance(mContext, phoneId).getImsServiceState() !=
                     ImsFeature.STATE_READY) {
                 Log.e(LOG_TAG, "Feature status for phoneId " + phoneId + " is not ready");
                 throw new QtiImsException("Feature state is NOT_READY");
@@ -329,43 +319,15 @@ public class QtiImsExtManager {
         return ret;
     }
 
-    /**
-     * Checks if the IMS service has successfully registered to the IMS network
-     * with the specified service & call type.
-     *
-     * @param serviceType a service type that is specified in {@link ImsCallProfile}
-     *        {@link ImsCallProfile#SERVICE_TYPE_NORMAL}
-     *        {@link ImsCallProfile#SERVICE_TYPE_EMERGENCY}
-     * @param callType a call type that is specified in {@link ImsCallProfile}
-     *        {@link ImsCallProfile#CALL_TYPE_VOICE_N_VIDEO}
-     *        {@link ImsCallProfile#CALL_TYPE_VOICE}
-     *        {@link ImsCallProfile#CALL_TYPE_VT}
-     *        {@link ImsCallProfile#CALL_TYPE_VS}
-     * @return true if the specified service id is connected to the IMS network;
-     *        false otherwise
-     * @throws ImsException if calling the IMS service results in an error
-     */
-    public boolean isConnected(int phoneId, int serviceType, int callType)
-            throws QtiImsException {
-        try {
-            return ImsManager.getInstance(mContext, phoneId).isConnected(serviceType, callType);
-        } catch (ImsException e) {
-            throw new QtiImsException("Exception in Ims isConnected : " + e);
+    public boolean isImsRegistered(int phoneId) throws QtiImsException {
+        final int[] subIds = SubscriptionManager.getSubId(phoneId);
+        int subId = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+        if (subIds != null && subIds.length >= 1) {
+            subId = subIds[0];
         }
-    }
-
-    /**
-     * Checks if the specified IMS service is opened.
-     *
-     * @return true if the specified service id is opened; false otherwise
-     * @throws ImsException if calling the IMS service results in an error
-     */
-    public boolean isOpened(int phoneId) throws QtiImsException {
-        try {
-            return ImsManager.getInstance(mContext, phoneId).isOpened();
-        } catch (ImsException e) {
-            throw new QtiImsException("Exception in Ims isOpened : " + e);
-        }
+        TelephonyManager telephonyManager =
+                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager.isImsRegistered(subId);
     }
 
     public int setVvmAppConfig(int phoneId, int defaultVvmApp) throws QtiImsException {
@@ -394,5 +356,30 @@ public class QtiImsExtManager {
         }
 
         return ret;
+    }
+
+    public static ImsMultiIdentityManager createImsMultiIdentityManager(
+            int phoneId, Context context) {
+        QtiImsExtManager imsExtMgr = new QtiImsExtManager(context);
+        return new ImsMultiIdentityManager(phoneId, imsExtMgr);
+    }
+
+    /*package private*/
+    IImsMultiIdentityInterface getMultiIdentityInterface(int phoneId)
+            throws QtiImsException {
+        obtainBinder();
+        checkPhoneId(phoneId);
+        checkFeatureStatus(phoneId);
+        try {
+            return mQtiImsExt.getMultiIdentityInterface(phoneId);
+        } catch(RemoteException e) {
+            throw new QtiImsException("Failed to retrieve MultiIdentityInterface : " + e);
+        }
+    }
+
+    /*package private*/
+    void validateInvariants(int phoneId)  throws QtiImsException {
+        checkPhoneId(phoneId);
+        checkFeatureStatus(phoneId);
     }
 }

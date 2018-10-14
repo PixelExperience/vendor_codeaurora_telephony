@@ -96,6 +96,10 @@ public class QtiCarrierConfigs {
        true - enabled, false - disabled */
     public static final String KEY_CARRIER_RTT_SUPPORTED = "carrier_rtt_supported";
 
+    /* Config to determine if Carrier supports RTT auto upgrade
+       true - enabled, false - disabled */
+    public static final String KEY_CARRIER_RTT_AUTO_UPGRADE = "carrier_rtt_auto_upgrade";
+
     /* Config to determine if Carrier supports RTT for Video Calls
        true - enabled, false - disabled */
     public static final String KEY_CARRIER_RTT_SUPPORTED_ON_VTCALLS =
@@ -111,12 +115,6 @@ public class QtiCarrierConfigs {
      */
     public static final String KEY_CARRIER_RTT_DOWNGRADE_SUPPORTED =
             "carrier_rtt_downgrade_supported";
-
-    /* Config to determine if Carrier supports Call Deflection
-     * true - if call deflection is supported else false
-     */
-    public static final String KEY_CARRIER_IMS_CALL_DEFLECT_SUPPORTED =
-            "config_carrier_ims_call_deflect";
 
     /* Config to determine if carrier supports holding a video call
      * true - if carrier supports holding a video call else false
