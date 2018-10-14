@@ -28,8 +28,7 @@
 
 package org.codeaurora.ims;
 
-import com.android.ims.ImsReasonInfo;
-
+import android.telephony.ims.ImsReasonInfo;
 /**
  * The class contains definitions for Qti specific constants related to any
  * value added features for video telephony.
@@ -74,6 +73,12 @@ public class QtiCallConstants {
 
     /* Call fail code extra key name */
     public static final String EXTRAS_KEY_CALL_FAIL_EXTRA_CODE  = "CallFailExtraCode";
+
+    /*Key to check whether user can mark a call unwanted*/
+    public static final String CAN_MARK_UNWANTED_CALL = "CanMarkUnwantedCall";
+
+    /*Key for verstat verification status*/
+    public static final String VERSTAT_VERIFICATION_STATUS = "VerstatVerificationStatus";
 
     /* Call fail error code for handover not feasible */
     public static final int CALL_FAIL_EXTRA_CODE_LTE_3G_HA_FAILED = 149;
@@ -246,7 +251,7 @@ public class QtiCallConstants {
      * For Vzw - 0 : Full Mode (Full)
      *
      */
-    public static final String PROPERTY_RTT_OPERATING_MODE = "persist.radio.rtt.operval";
+    public static final String PROPERTY_RTT_OPERATING_MODE = "persist.vendor.radio.rtt.operval";
 
     // RTT Off
     public static final int RTT_MODE_DISABLED = 0;

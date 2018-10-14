@@ -29,6 +29,7 @@ package org.codeaurora.ims;
 
 import org.codeaurora.ims.internal.IQtiImsExt;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.QtiCallConstants;
 
 /**
@@ -63,12 +64,6 @@ public abstract class QtiImsExtBase {
         @Override
         public void getPacketErrorCount(int phoneId, IQtiImsExtListener listener) {
             onGetPacketErrorCount(phoneId, listener);
-        }
-
-        @Override
-        public void sendCallDeflectRequest(int phoneId, String deflectNumber,
-                IQtiImsExtListener listener) {
-            onSendCallDeflectRequest(phoneId, deflectNumber, listener);
         }
 
         @Override
@@ -145,6 +140,10 @@ public abstract class QtiImsExtBase {
             return onGetVvmAppConfig(phoneId);
         }
 
+        @Override
+        public IImsMultiIdentityInterface getMultiIdentityInterface(int phoneId) {
+            return onGetMultiIdentityInterface(phoneId);
+        }
     };
 
     private QtiImsExtBinder mQtiImsExtBinder;
@@ -169,10 +168,6 @@ public abstract class QtiImsExtBase {
         // no-op
     }
     protected void onGetPacketErrorCount(int phoneId, IQtiImsExtListener listener) {
-        // no-op
-    }
-    protected void onSendCallDeflectRequest(int phoneId, String deflectNumber,
-            IQtiImsExtListener listener) {
         // no-op
     }
     protected void onResumePendingCall(int phoneId, int videoState) {
@@ -228,5 +223,9 @@ public abstract class QtiImsExtBase {
     protected int onSetRcsAppConfig(int phoneId, int defaultSmsApp) {
         // no-op
         return 0; //DUMMY VALUE
+    }
+    protected IImsMultiIdentityInterface onGetMultiIdentityInterface(int phoneId) {
+        // no-op
+        return null;
     }
 }

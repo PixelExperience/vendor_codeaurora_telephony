@@ -67,7 +67,7 @@ public class QtiImsExtUtils {
     public static final int QTI_IMS_REQUEST_ERROR = 1;
 
     /* name for carrier property */
-    public static final String PROPERTY_RADIO_ATEL_CARRIER = "persist.radio.atel.carrier";
+    public static final String PROPERTY_RADIO_ATEL_CARRIER = "persist.vendor.radio.atel.carrier";
 
     /* Carrier one default mcc mnc */
     public static final String CARRIER_ONE_DEFAULT_MCC_MNC = "405854";
@@ -374,7 +374,7 @@ public class QtiImsExtUtils {
      * Returns true if enabled, or false otherwise.
      */
     public static boolean isCallTransferEnabled(Context context) {
-        return SystemProperties.getBoolean("persist.radio.ims_call_transfer", false);
+        return SystemProperties.getBoolean("persist.vendor.radio.ims_call_transfer", false);
     }
 
    /**
@@ -429,11 +429,6 @@ public class QtiImsExtUtils {
             String carrierConfig) {
         return QtiCarrierConfigHelper.getInstance().getBoolean(context, phoneId,
                 carrierConfig);
-    }
-
-    //TODO not removing this deprecated API to avoid compilation errors.
-    public static boolean allowVideoCallsInLowBattery(Context context) {
-        return allowVideoCallsInLowBattery(QtiCallConstants.INVALID_PHONE_ID, context);
     }
 
     public static boolean allowVideoCallsInLowBattery(int phoneId, Context context) {
@@ -529,6 +524,12 @@ public class QtiImsExtUtils {
                 , QtiCarrierConfigs.KEY_CARRIER_RTT_SUPPORTED));
     }
 
+    // Returns true if Carrier supports RTT auto upgrade
+    public static boolean isRttAutoUpgradeSupported(int phoneId, Context context) {
+        return (isCarrierConfigEnabled(phoneId, context
+                , QtiCarrierConfigs.KEY_CARRIER_RTT_AUTO_UPGRADE));
+    }
+
     // Returns true if Carrier supports RTT for Video Calls
     public static boolean isRttSupportedOnVtCalls(int phoneId, Context context) {
         return (isCarrierConfigEnabled(phoneId, context,
@@ -554,12 +555,6 @@ public class QtiImsExtUtils {
     public static boolean isRttDowngradeSupported(int phoneId, Context context) {
         return (isCarrierConfigEnabled(phoneId, context,
                 QtiCarrierConfigs.KEY_CARRIER_RTT_DOWNGRADE_SUPPORTED));
-    }
-
-    // Returns true if Carrier supports Call deflection
-    public static boolean isCallDeflectionSupported(int phoneId, Context context) {
-        return (isCarrierConfigEnabled(phoneId, context,
-                QtiCarrierConfigs.KEY_CARRIER_IMS_CALL_DEFLECT_SUPPORTED));
     }
 
     // Returns true if Carrier supports Cancel Modify Call

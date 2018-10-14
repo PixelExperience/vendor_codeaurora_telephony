@@ -29,6 +29,7 @@
 package org.codeaurora.ims.internal;
 
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 
 /**
  * Interface through which APP and vendor communicates.
@@ -99,18 +100,6 @@ interface IQtiImsExt {
      * @throws RemoteException if calling the IMS service results in an error.
      */
     oneway void getPacketErrorCount(int phoneId, IQtiImsExtListener listener);
-
-   /**
-     * sendCallDeflectRequest
-     * Deflects a incoming call to given number
-     *
-     * @param phoneId indicates the phone instance which triggered the request
-     * @param deflectNumber indicates the target number to deflect
-     * @param listener an IQtiImsExtListener instance to indicate the response
-     * @return void
-     */
-    oneway void sendCallDeflectRequest(int phoneId, String deflectNumber,
-            IQtiImsExtListener listener);
 
    /**
      * sendCallTransferRequest
@@ -274,4 +263,9 @@ interface IQtiImsExt {
      * @throws RemoteException if calling the IMS service results in an error.
      */
     int setVvmAppConfig(int phoneId, int defaultVvmApp);
+
+   /**
+    * Returns the IImsMultiIdentityInterface IBinder
+    */
+    IImsMultiIdentityInterface getMultiIdentityInterface(int phoneId);
 }
