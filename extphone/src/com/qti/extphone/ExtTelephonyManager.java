@@ -29,17 +29,21 @@
 
 package com.qti.extphone;
 
-import android.util.Log;
-import android.os.Message;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Message;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.RemoteException;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.ComponentName;
-
 import android.telephony.ImsiEncryptionInfo;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.List;
 
 /**
 * ExtTelephonyManager class provides ExtTelephonyService interface to
@@ -51,16 +55,43 @@ public class ExtTelephonyManager {
 
     private static final String LOG_TAG = "ExtTelephonyManager";
     private static final boolean DBG = true;
-    private static Context mContext;
-    private Boolean mServiceConnected;
-    private ExtTelephonyServiceConnection mConnection;
-    private IExtPhone mExtTelephonyService = null;
-    private Handler mServiceConnectionStatusHandler = null;
-    private int mServiceConnectionStatusId;
-    private int INVALID = -1;
+    private static final int INVALID = -1;
+
     private static ExtTelephonyManager mInstance;
-    private ServiceCallback mServiceCb = null;
-    private static int mClientCount = 0;
+
+    private Context mContext;
+    private ExtTelephonyServiceConnection mConnection =
+            new ExtTelephonyServiceConnection();
+    private IExtPhone mExtTelephonyService = null;
+
+    private List<ServiceCallback> mServiceCbs =
+            Collections.synchronizedList(new ArrayList<>());
+    private AtomicBoolean mServiceConnected = new AtomicBoolean();
+
+    /**
+     * This represents the state of the SIM before SIM_STATE_LOADED, when only the
+     * essential records have been loaded.
+     */
+    public static final String SIM_STATE_ESSENTIAL_RECORDS_LOADED = "ESSENTIAL_LOADED";
+
+    /**
+     * Intent action broadcasted when Sms Callback Mode changed.
+     */
+    public static final String ACTION_SMS_CALLBACK_MODE_CHANGED =
+            "org.codeaurora.intent.action.SMS_CALLBACK_MODE_CHANGED";
+    /**
+     * Extra included in {@link #ACTION_SMS_CALLBACK_MODE_CHANGED}.
+     * Indicates whether the phone is in an sms callback mode.
+     */
+    public static final String EXTRA_PHONE_IN_SCM_STATE =
+            "org.codeaurora.extra.PHONE_IN_SCM_STATE";
+
+    /**
+     * Intent broadcasted to indicate the sms callback mode blocks
+     * datacall/sms.
+     */
+    public static final String ACTION_SHOW_NOTICE_SCM_BLOCK_OTHERS =
+            "org.codeaurora.intent.action.SHOW_NOTICE_SCM_BLOCK_OTHERS";
 
     /**
     * Constructor
@@ -68,8 +99,11 @@ public class ExtTelephonyManager {
     *                initiated.
     */
     public ExtTelephonyManager(Context context) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context is null");
+        }
         this.mContext = context;
-        mServiceConnected = false;
+        mServiceConnected.set(false);
         log("ExtTelephonyManager() ...");
     }
 
@@ -79,7 +113,12 @@ public class ExtTelephonyManager {
     public static synchronized ExtTelephonyManager getInstance(Context context) {
         synchronized (ExtTelephonyManager.class) {
             if (mInstance == null) {
-                mInstance = new ExtTelephonyManager(context);
+                if (context != null) {
+                    Context appContext = context.getApplicationContext();
+                    mInstance = new ExtTelephonyManager(appContext);
+                } else {
+                    throw new IllegalArgumentException("Context is null");
+                }
             }
             return mInstance;
         }
@@ -90,12 +129,12 @@ public class ExtTelephonyManager {
     * @return boolean true if service is connected, false oterwise
     */
     public boolean isServiceConnected() {
-        return mServiceConnected;
+        return mServiceConnected.get();
     }
 
     public boolean isFeatureSupported(int feature) {
         boolean ret = false;
-        if (!mServiceConnected){
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -121,28 +160,71 @@ public class ExtTelephonyManager {
     *                 to listen to the Result.
     */
     public boolean connectService(ServiceCallback cb) {
-        mServiceCb = cb;
-        mClientCount += 1;
-        log("Creating ExtTelephonyService. If not started yet, start ...");
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.qti.phone",
-                                              "com.qti.phone.ExtTelephonyService"));
-        mConnection = new ExtTelephonyServiceConnection();
-        boolean success = mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        log("bindService result: " + success);
+        boolean success = true;
+        if (!isServiceConnected() && mServiceCbs.isEmpty()) {
+            log("Creating ExtTelephonyService. If not started yet, start ...");
+            addServiceCallback(cb);
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName("com.qti.phone",
+                    "com.qti.phone.ExtTelephonyService"));
+            success = mContext.bindService(intent, mConnection,
+                    Context.BIND_AUTO_CREATE);
+            log("bind Service result: " + success);
+        } else {
+            addServiceCallback(cb);
+            if (isServiceConnected() && cb != null) {
+                cb.onConnected();
+            }
+        }
         return success;
+    }
+
+    private void addServiceCallback(ServiceCallback cb) {
+        if (cb != null && !mServiceCbs.contains(cb)) {
+             mServiceCbs.add(cb);
+        }
     }
 
     /**
     * Disconnect the connection with the Service.
     *
+    * @deprecated Replaced by {@link #disconnectService(ServiceCallback)}
+    *
     */
     public void disconnectService() {
-        log( "disconnectService() mClientCount="+mClientCount);
-        if (mClientCount > 0) mClientCount -= 1;
-        if (mClientCount <= 0 && mConnection != null) {
+        disconnectService(null);
+    }
+
+    /**
+    * Disconnect the connection with the Service.
+    *
+    * @param serviceCallback {@link ServiceCallback} to receive
+    * service-level callbacks.
+    *
+    */
+    public void disconnectService(ServiceCallback cb) {
+        if (cb != null) {
+            if (!isServiceConnected()) {
+                cb.onDisconnected();
+            }
+            if (mServiceCbs.contains(cb)) {
+                mServiceCbs.remove(cb);
+            }
+        }
+        if (isServiceConnected() && mServiceCbs.isEmpty()) {
             mContext.unbindService(mConnection);
-            mConnection = null;
+        }
+    }
+
+    private void notifyConnected() {
+        for (ServiceCallback cb : mServiceCbs) {
+            cb.onConnected();
+        }
+    }
+
+    private void notifyDisconnected() {
+        for (ServiceCallback cb : mServiceCbs) {
+            cb.onDisconnected();
         }
     }
 
@@ -159,19 +241,15 @@ public class ExtTelephonyManager {
             } else {
                 log("ExtTelephonyService connected ... ");
             }
-            mServiceConnected = true;
-            if (mServiceCb != null) {
-                mServiceCb.onConnected();
-            }
+            mServiceConnected.set(true);
+            notifyConnected();
         }
 
         public void onServiceDisconnected(ComponentName name) {
             log("The connection to the service got disconnected!");
             mExtTelephonyService = null;
-            mServiceConnected = false;
-            if (mServiceCb != null) {
-                mServiceCb.onDisconnected();
-            }
+            mServiceConnected.set(false);
+            notifyDisconnected();
         }
     }
 
@@ -183,7 +261,7 @@ public class ExtTelephonyManager {
     */
     public int getPropertyValueInt(String property, int def) {
         int ret = INVALID;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -205,7 +283,7 @@ public class ExtTelephonyManager {
     */
     public boolean getPropertyValueBool(String property, boolean def) {
         boolean ret = def;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -227,7 +305,7 @@ public class ExtTelephonyManager {
     */
     public String getPropertyValueString(String property, String def) {
         String ret = def;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -248,7 +326,7 @@ public class ExtTelephonyManager {
     */
     public boolean isPrimaryCarrierSlotId(int slotId) {
         boolean ret = false;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -268,7 +346,7 @@ public class ExtTelephonyManager {
     */
     public int getCurrentPrimaryCardSlotId() {
         int ret = INVALID;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -288,7 +366,7 @@ public class ExtTelephonyManager {
     */
     public int getPrimaryCarrierSlotId() {
         int ret = INVALID;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -307,7 +385,7 @@ public class ExtTelephonyManager {
     * @return void
     */
     public void setPrimaryCardOnSlot(int slotId) {
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return;
         }
@@ -328,7 +406,7 @@ public class ExtTelephonyManager {
     */
     public boolean performIncrementalScan(int slotId) {
         boolean ret = false;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -350,7 +428,7 @@ public class ExtTelephonyManager {
     */
     public boolean abortIncrementalScan(int slotId) {
         boolean ret = false;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -372,7 +450,7 @@ public class ExtTelephonyManager {
     */
     public boolean isSMSPromptEnabled() {
         boolean ret = false;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return ret;
         }
@@ -393,7 +471,7 @@ public class ExtTelephonyManager {
     * Requires Permission: android.Manifest.permission.MODIFY_PHONE_STATE
     */
     public void setSMSPromptEnabled(boolean enabled) {
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return;
         }
@@ -415,7 +493,7 @@ public class ExtTelephonyManager {
     */
     public void supplyIccDepersonalization(String netpin, String type,
             IDepersoResCallback callback, int phoneId) {
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return;
         }
@@ -430,7 +508,7 @@ public class ExtTelephonyManager {
 
     public Token enableEndc(int slot, boolean enable, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -445,7 +523,7 @@ public class ExtTelephonyManager {
 
     public Token queryNrIconType(int slot, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -460,7 +538,7 @@ public class ExtTelephonyManager {
 
     public Token queryEndcStatus(int slot, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -475,7 +553,7 @@ public class ExtTelephonyManager {
 
     public Token setNrConfig(int slot, NrConfig config, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -490,7 +568,7 @@ public class ExtTelephonyManager {
 
     public Token queryNrConfig(int slot, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -505,7 +583,7 @@ public class ExtTelephonyManager {
 
     public Token sendCdmaSms(int slot, byte[] pdu, boolean expectMore, Client client) {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -520,7 +598,7 @@ public class ExtTelephonyManager {
 
     public Token getQtiRadioCapability(int slotId, Client client) throws RemoteException {
         Token token = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -530,7 +608,7 @@ public class ExtTelephonyManager {
 
     public Token enable5g(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -545,7 +623,7 @@ public class ExtTelephonyManager {
 
     public Token disable5g(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -560,7 +638,7 @@ public class ExtTelephonyManager {
 
     public Token queryNrBearerAllocation(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -576,7 +654,7 @@ public class ExtTelephonyManager {
     public Token setCarrierInfoForImsiEncryption(int slot, ImsiEncryptionInfo info,
             Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -591,7 +669,7 @@ public class ExtTelephonyManager {
 
     public Token enable5gOnly(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -606,7 +684,7 @@ public class ExtTelephonyManager {
 
     public Token query5gStatus(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -621,7 +699,7 @@ public class ExtTelephonyManager {
 
     public Token queryNrDcParam(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -636,7 +714,7 @@ public class ExtTelephonyManager {
 
     public Token queryNrSignalStrength(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -651,7 +729,7 @@ public class ExtTelephonyManager {
 
     public Token queryUpperLayerIndInfo(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -666,7 +744,7 @@ public class ExtTelephonyManager {
 
     public Token query5gConfigInfo(int slot, Client client) {
         Token token = null;
-        if(!mServiceConnected){
+        if(!isServiceConnected()){
             Log.e(LOG_TAG, "service not connected!");
             return token;
         }
@@ -700,6 +778,26 @@ public class ExtTelephonyManager {
         }
     }
 
+   /**
+    * To get the IMEI information of all slots on device.
+    * @return
+    *        QtiImeiInfo[], contains array of imeiInfo(i.e slotId, IMEI string and IMEI type).
+    *
+    * The calling application should not assume returned array index as slotId, instead the
+    * application has to use the slotId that present in QtiImeiInfo object to know the IMEI
+    * corresponds to a slot.
+    *
+    * Requires Permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
+    */
+    public QtiImeiInfo[] getImeiInfo() {
+        try {
+            return mExtTelephonyService.getImeiInfo();
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "getImeiInfo ended in remote exception");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public boolean isSmartDdsSwitchFeatureAvailable() throws RemoteException {
         try {
@@ -718,9 +816,41 @@ public class ExtTelephonyManager {
         }
     }
 
+    public Token getDdsSwitchCapability(int slot, Client client) {
+        Token token = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return token;
+        }
+        try {
+            token = mExtTelephonyService.getDdsSwitchCapability(slot, client);
+        } catch(RemoteException e) {
+            Log.e(LOG_TAG, "getDdsSwitchCapability, remote exception");
+            e.printStackTrace();
+        }
+        return token;
+    }
+
+    public Token sendUserPreferenceForDataDuringVoiceCall(int slot,
+            boolean userPreference, Client client) {
+        Token token = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return token;
+        }
+        try {
+            token = mExtTelephonyService.sendUserPreferenceForDataDuringVoiceCall(slot,
+                    userPreference, client);
+        } catch(RemoteException e) {
+            Log.e(LOG_TAG, "getDdsSwitchCapability, remote exception");
+            e.printStackTrace();
+        }
+        return token;
+    }
+
     public Client registerCallback(String packageName, IExtPhoneCallback callback) {
         Client client = null;
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return client;
         }
@@ -734,7 +864,7 @@ public class ExtTelephonyManager {
     }
 
     public void unRegisterCallback(IExtPhoneCallback callback) {
-        if (!mServiceConnected) {
+        if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
             return;
         }
