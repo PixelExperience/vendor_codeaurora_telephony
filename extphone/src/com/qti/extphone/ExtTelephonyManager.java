@@ -871,22 +871,7 @@ public class ExtTelephonyManager {
             throw new RemoteException("verifySimPukChangePin ended in remote exception");
         }
     }
-
-    public boolean isEpdgOverCellularDataSupported(int slot) throws RemoteException {
-        boolean support = false;
-        if (!isServiceConnected()) {
-            Log.e(LOG_TAG, "service not connected!");
-            return support;
-        }
-        try {
-            support = mExtTelephonyService.isEpdgOverCellularDataSupported(slot);
-        } catch(RemoteException e) {
-            Log.e(LOG_TAG, "isEpdgOverCellularDataSupported, remote exception");
-            e.printStackTrace();
-        }
-        return support;
-    }
-
+    
     public Client registerCallback(String packageName, IExtPhoneCallback callback) {
         Client client = null;
         if (!isServiceConnected()) {
