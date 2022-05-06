@@ -25,6 +25,40 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ *
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted (subject to the limitations in the
+ * disclaimer below) provided that the following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *
+ *   * Neither the name of Qualcomm Innovation Center, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+ * GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.codeaurora.ims;
@@ -120,18 +154,26 @@ public class CallComposerInfo implements Parcelable {
     public static final int PRIORITY_NORMAL = 1;
     public static final int INVALID_CALLID = -1;
     public static final int INVALID_TOKEN = -1;
+    public static final String INVALID_ORGANIZATION = "";
 
     private int mPriority;
     private String mSubject;
     private Uri mImageUrl;
     private Location mLocation;
+    private String mOrganization;
 
     public CallComposerInfo(int priority, String subject, Uri imageUrl,
-            Location location) {
+            Location location, String organization) {
         mPriority = priority;
         mSubject = subject;
         mImageUrl = imageUrl;
         mLocation = location;
+        mOrganization = organization;
+    }
+
+    public CallComposerInfo(int priority, String subject, Uri imageUrl,
+            Location location) {
+        this(priority, subject, imageUrl, location, INVALID_ORGANIZATION);
     }
 
     public CallComposerInfo(int priority, String subject, Uri imageUrl) {
@@ -143,6 +185,7 @@ public class CallComposerInfo implements Parcelable {
         mSubject = info.getSubject();
         mImageUrl = info.getImageUrl();
         mLocation = info.getLocation();
+        mOrganization = info.getOrganization();
     }
 
     public CallComposerInfo(Parcel in) {
@@ -178,12 +221,20 @@ public class CallComposerInfo implements Parcelable {
         return mLocation;
     }
 
+    /*
+    * This method returns the organization of the call
+    */
+    public String getOrganization() {
+        return mOrganization;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flag) {
         dest.writeInt(mPriority);
         dest.writeString(mSubject);
         dest.writeParcelable(mImageUrl, flag);
         dest.writeParcelable(mLocation, flag);
+        dest.writeString(mOrganization);
     }
 
     public void readFromParcel(Parcel in) {
@@ -191,6 +242,7 @@ public class CallComposerInfo implements Parcelable {
         mSubject = in.readString();
         mImageUrl = in.readParcelable(Uri.class.getClassLoader());
         mLocation = in.readParcelable(Location.class.getClassLoader());
+        mOrganization = in.readString();
     }
 
     @Override
@@ -214,6 +266,7 @@ public class CallComposerInfo implements Parcelable {
     public String toString() {
         return ("{CallComposerInfo: " + "priority = " +
                 mPriority + " , subject = " + mSubject +
-                " , image url = " + mImageUrl + ", location = " + mLocation +"}");
+                " , image url = " + mImageUrl + ", location = " + mLocation +
+                " , organization = " + mOrganization + "}");
     }
 }
