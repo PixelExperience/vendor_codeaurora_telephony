@@ -475,6 +475,8 @@ public class QtiCallConstants {
     public static final String EXTRA_ORIGINAL_CALL_TYPE = "originalCallType";
     /* Slience UI before CRS RTP come extra key */
     public static final String EXTRA_IS_PREPARATORY = "isPreparatory";
+    /* Ims vendor callId extra key */
+    public static final String EXTRA_IMS_CALL_ID = "callId";
     //INVALID if CrsData is invalid, play local ring.
     public static final int CRS_TYPE_INVALID = 0;
     //AUDIO if only audio will be played.
