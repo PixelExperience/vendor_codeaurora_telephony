@@ -189,18 +189,6 @@ interface IExtPhone {
     void unRegisterCallback(IExtPhoneCallback callback);
 
     /**
-    * Async api
-    * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
-    */
-    Client registerQtiRadioConfigCallback(String packageName, IExtPhoneCallback callback);
-
-    /**
-    * Async api
-    * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
-    */
-    void unregisterQtiRadioConfigCallback(IExtPhoneCallback callback);
-
-    /**
     * Set nr config to NSA/SA/NSA+SA on a given slotId.
     * @param - slotId
     * @param - def
@@ -451,12 +439,4 @@ interface IExtPhone {
      * @return - boolean value indicates if the feature is supported or not
      */
      boolean isEpdgOverCellularDataSupported(int slotId);
-
-    /**
-     * Query the status of Secure Mode
-     *
-     * @param client - Client registered with package name to receive callbacks
-     * @return - Integer Token can be used to compare with the response.
-     */
-    Token getSecureModeStatus(in Client client);
 }
