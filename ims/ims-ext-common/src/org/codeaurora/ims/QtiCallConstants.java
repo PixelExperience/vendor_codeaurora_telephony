@@ -24,6 +24,40 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ *
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted (subject to the limitations in the
+ * disclaimer below) provided that the following conditions are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *
+ *   * Neither the name of Qualcomm Innovation Center, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+ * GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+ * HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+ * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.codeaurora.ims;
@@ -327,6 +361,7 @@ public class QtiCallConstants {
     public static final int QTI_CONFIG_VVM_APP = 1002;
     public static final int QTI_CONFIG_VOWIFI_ROAMING_MODE_PREFERENCE = 1003;
     public static final int CALL_COMPOSER_MODE = 1004;
+    public static final int B2C_ENRICHED_CALLING_MODE = 1005;
 
     /**
      * Key values for the pre alerting call elements
@@ -379,6 +414,11 @@ public class QtiCallConstants {
     public static String EXTRA_CALL_COMPOSER_LOCATION_LONGITUDE =
             "call_composer_location_longitude";
 
+    // Get when organization header is added to call composer call
+    // Type: String
+    public static final String EXTRA_CALL_COMPOSER_ORGANIZATION_HEADER =
+            "call_composer_organization_header";
+
     // Set for eCnam info
     public static String EXTRA_CALL_ECNAM = "call_ecnam";
 
@@ -407,6 +447,14 @@ public class QtiCallConstants {
     public static final int CALL_COMPOSER_ENABLED = 1;
 
     /**
+     * User setting to control whether b2c enriched calling is allowed
+     * Type: int (0 for disable, 1 for enabled);
+     */
+    public static final String B2C_ENRICHED_CALLING = "qti.settings.b2c_enriched_calling";
+    public static final int B2C_ENRICHED_CALLING_DISABLED = 0;
+    public static final int B2C_ENRICHED_CALLING_ENABLED = 1;
+
+    /**
      * Constants used by clients as part of registration status change indication.
      * Below constants will be notified when modem is unable to get the geo location information.
      */
@@ -427,6 +475,8 @@ public class QtiCallConstants {
     public static final String EXTRA_ORIGINAL_CALL_TYPE = "originalCallType";
     /* Slience UI before CRS RTP come extra key */
     public static final String EXTRA_IS_PREPARATORY = "isPreparatory";
+    /* Ims vendor callId extra key */
+    public static final String EXTRA_IMS_CALL_ID = "callId";
     //INVALID if CrsData is invalid, play local ring.
     public static final int CRS_TYPE_INVALID = 0;
     //AUDIO if only audio will be played.
