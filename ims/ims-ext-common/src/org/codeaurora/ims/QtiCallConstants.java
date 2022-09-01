@@ -363,6 +363,25 @@ public class QtiCallConstants {
     public static final int CALL_COMPOSER_MODE = 1004;
     public static final int B2C_ENRICHED_CALLING_MODE = 1005;
     public static final int DATA_CHANNEL_MODE = 1006;
+    /**
+     * An integer key representing the voice over LTE (VoLTE) provisioning restriction status for
+     * home network for the associated subscription.
+     * Use {@link #PROVISIONING_VALUE_ENABLED} to enable VoLTE provisioning restriction and
+     * {@link #PROVISIONING_VALUE_DISABLED} to disable VoLTE provisioning restriction.
+     * @see #setProvisioningIntValue(int, int)
+     * @see #getProvisioningIntValue(int)
+     */
+    public static final int VOLTE_PROVISIONING_RESTRICT_HOME = 1007;
+
+    /**
+     * An integer key representing the voice over LTE (VoLTE) provisioning restriction status for
+     * roaming network for the associated subscription.
+     * Use {@link #PROVISIONING_VALUE_ENABLED} to enable VoLTE provisioning restriction and
+     * {@link #PROVISIONING_VALUE_DISABLED} to disable VoLTE provisioning restriction.
+     * @see #setProvisioningIntValue(int, int)
+     * @see #getProvisioningIntValue(int)
+     */
+    public static final int VOLTE_PROVISIONING_RESTRICT_ROAMING = 1008;
 
     /**
      * Key values for the pre alerting call elements
