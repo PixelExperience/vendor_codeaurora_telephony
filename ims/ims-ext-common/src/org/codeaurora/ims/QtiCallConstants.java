@@ -362,6 +362,7 @@ public class QtiCallConstants {
     public static final int QTI_CONFIG_VOWIFI_ROAMING_MODE_PREFERENCE = 1003;
     public static final int CALL_COMPOSER_MODE = 1004;
     public static final int B2C_ENRICHED_CALLING_MODE = 1005;
+    public static final int DATA_CHANNEL_MODE = 1006;
 
     /**
      * Key values for the pre alerting call elements
@@ -455,6 +456,14 @@ public class QtiCallConstants {
     public static final int B2C_ENRICHED_CALLING_ENABLED = 1;
 
     /**
+     * User setting to control whether ims data channel is allowed
+     * Type: int (0 for disable, 1 for enabled);
+     */
+    public static final String DATA_CHANNEL = "qti.settings.data_channel";
+    public static final int DATA_CHANNEL_DISABLED = 0;
+    public static final int DATA_CHANNEL_ENABLED = 1;
+
+    /**
      * Constants used by clients as part of registration status change indication.
      * Below constants will be notified when modem is unable to get the geo location information.
      */
@@ -522,4 +531,7 @@ public class QtiCallConstants {
      *  - activate CFx before register operation
      *  - query CFNL while network does not support CFNL feature */
     public static final int CODE_UT_CF_SERVICE_NOT_REGISTERED = 850;
+    // Data Channel call information
+    public static final String EXTRA_DATA_CHANNEL_MODEM_CALL_ID = "modemCallId";
+    public static final String EXTRA_IS_DATA_CHANNEL_CALL = "isDcCall";
 }
