@@ -191,4 +191,10 @@ public class QtiCarrierConfigs {
      */
     public static final String KEY_CARRIER_SEND_MEDIA_CONFIG_SUPPORTED =
         "carrier_support_send_media_configs_to_radio_layer_bool";
+
+    /* Config to determine if Carrier should be considered as a private network
+     * true - if it is considered as a private network  else false.
+     */
+    public static final String KEY_IS_PRIVATE_NETWORK =
+        "is_private_network";
 }
