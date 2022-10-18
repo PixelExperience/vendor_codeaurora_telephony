@@ -34,33 +34,55 @@ import android.os.RemoteException;
 import org.codeaurora.ims.MultiIdentityLineInfo;
 import org.codeaurora.ims.internal.IImsMultiIdentityListener;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
+import org.codeaurora.ims.utils.QtiImsExtUtils;
 import java.util.List;
 import java.util.ArrayList;
+
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 
 public abstract class ImsMultiIdentityControllerBase {
     public final class MultiIdentityBinder extends IImsMultiIdentityInterface.Stub {
 
         @Override
         public void setMultiIdentityListener(
-                IImsMultiIdentityListener listener) throws RemoteException{
-            ImsMultiIdentityControllerBase.this.
-                setMultiIdentityListener(listener);
+                IImsMultiIdentityListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() -> {
+                    try {
+                        ImsMultiIdentityControllerBase.this.
+                            setMultiIdentityListener(listener);
+                    } catch (RemoteException e) {
+                        throw new CompletionException(e);
+                    }}, "setMultiIdentityListener", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void updateRegistrationStatus(List<MultiIdentityLineInfo> linesInfo) {
-            ImsMultiIdentityControllerBase.this.
-                updateRegistrationStatus(linesInfo);
+        public void updateRegistrationStatus(List<MultiIdentityLineInfo> linesInfo)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    ImsMultiIdentityControllerBase.this.
+                    updateRegistrationStatus(linesInfo),
+                    "updateRegistrationStatus", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void queryVirtualLineInfo(String msisdn) throws RemoteException{
-           ImsMultiIdentityControllerBase.this.
-               queryVirtualLineInfo(msisdn);
+        public void queryVirtualLineInfo(String msisdn) throws RemoteException {
+            if (msisdn == null) {
+                throw new RemoteException("queryVirtualLineInfo :: msisdn is null");
+            }
+            QtiImsExtUtils.executeMethodAsync(() ->
+                        ImsMultiIdentityControllerBase.this.
+                        queryVirtualLineInfo(msisdn),
+                        "queryVirtualLineInfo", mExecutor,
+                        QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
     }
 
     private IImsMultiIdentityInterface mBinder;
+    private Executor mExecutor;
+    private Context mContext;
 
     public IImsMultiIdentityInterface getBinder() {
         if (mBinder == null) {
@@ -69,8 +91,13 @@ public abstract class ImsMultiIdentityControllerBase {
         return mBinder;
     }
 
+    public ImsMultiIdentityControllerBase(Executor executor, Context context) {
+        mExecutor = executor;
+        mContext = context;
+    }
+
     protected void setMultiIdentityListener(
-            IImsMultiIdentityListener listener) throws RemoteException{
+            IImsMultiIdentityListener listener) throws RemoteException {
         //no-op
     }
 
@@ -79,7 +106,7 @@ public abstract class ImsMultiIdentityControllerBase {
         //no-op
     }
 
-    protected void queryVirtualLineInfo(String msisdn) throws RemoteException{
+    protected void queryVirtualLineInfo(String msisdn) {
         //no-op
     }
 }
