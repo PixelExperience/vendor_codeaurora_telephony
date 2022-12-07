@@ -553,4 +553,9 @@ public class QtiCallConstants {
     // Data Channel call information
     public static final String EXTRA_DATA_CHANNEL_MODEM_CALL_ID = "modemCallId";
     public static final String EXTRA_IS_DATA_CHANNEL_CALL = "isDcCall";
+
+    // Intent action broadcasted when essential records are loaded.
+    // requires permission "com.qti.permission.RECEIVE_ESSENTIAL_RECORDS_LOADED".
+    public static final String ACTION_ESSENTIAL_RECORDS_LOADED =
+        "org.codeaurora.intent.action.ESSENTIAL_RECORDS_LOADED";
 }

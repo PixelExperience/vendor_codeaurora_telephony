@@ -44,6 +44,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codeaurora.ims.QtiCallConstants;
+
 public class QtiCarrierConfigHelper {
     static final String TAG  = QtiCarrierConfigHelper.class.getSimpleName();
     private static final boolean DEBUG =
@@ -64,8 +66,9 @@ public class QtiCarrierConfigHelper {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent != null && intent.getAction()
-                    .equals(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED)) {
+            if (intent != null && (intent.getAction()
+                    .equals(CarrierConfigManager.ACTION_CARRIER_CONFIG_CHANGED) ||
+                    intent.getAction().equals(QtiCallConstants.ACTION_ESSENTIAL_RECORDS_LOADED))) {
                 int phoneId = intent.getIntExtra(CarrierConfigManager.EXTRA_SLOT_INDEX,
                         SubscriptionManager.INVALID_SIM_SLOT_INDEX);
                 if (mSubscriptionManager != null) {
@@ -150,6 +153,7 @@ public class QtiCarrierConfigHelper {
         subCache = new int[PHONE_COUNT];
         IntentFilter filter = new IntentFilter(CarrierConfigManager
                 .ACTION_CARRIER_CONFIG_CHANGED);
+        filter.addAction(QtiCallConstants.ACTION_ESSENTIAL_RECORDS_LOADED);
         mContext.registerReceiver(mReceiver, filter);
         mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
     }
