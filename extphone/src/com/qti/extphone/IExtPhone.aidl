@@ -46,6 +46,7 @@ import com.qti.extphone.MsimPreference;
 import com.qti.extphone.NrConfig;
 import com.qti.extphone.QtiImeiInfo;
 import com.qti.extphone.QtiSetNetworkSelectionMode;
+import com.qti.extphone.QtiSimType;
 
 interface IExtPhone {
 
@@ -519,6 +520,15 @@ interface IExtPhone {
      boolean isEpdgOverCellularDataSupported(int slotId);
 
     /**
+     * Request for QoS parameters for a particular data call.
+     *
+     * @param - slotId slot ID
+     * @param - cid connection id of the data call for which the QoS parameters are requested
+     * @return - Integer Token to be used to map the response.
+     */
+     Token getQosParameters(int slot, int cid, in Client client);
+
+    /**
      * Query the status of Secure Mode
      *
      * @param client - Client registered with package name to receive callbacks
@@ -534,4 +544,28 @@ interface IExtPhone {
      * @return - Integer Token can be used to compare with the response.
      */
     Token setMsimPreference(in Client client, in MsimPreference pref);
+
+    /**
+     * Get current active Sim Type, Physical/eSIM or iUICC
+     *
+     * @return - Array of SimType corresponds to each Slot.
+     */
+    QtiSimType[] getCurrentSimType();
+
+    /**
+     * Get the supported Sim Type information on all available slots
+     *
+     * @return - Array of SimType corresponds to each Slot, the supported
+     *           Sim Types are Physical/eSIM or iUICC or both.
+     */
+    QtiSimType[] getSupportedSimTypes();
+
+    /**
+     * Set SIM Type to either Physical/eSIM or iUICC
+     *
+     * @param client - Client registered with package name to receive callbacks.
+     * @param simType - QtiSimType array contains the SimType to be set for all the slots.
+     * @return - Integer Token can be used to compare with the response.
+     */
+    Token setSimType(in Client client, in QtiSimType[] simType);
 }
