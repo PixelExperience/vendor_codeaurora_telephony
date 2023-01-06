@@ -24,6 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear.
  */
 
 package org.codeaurora.ims.internal;
@@ -33,6 +37,7 @@ import org.codeaurora.ims.internal.ICrsCrbtController;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
+import org.codeaurora.ims.VosActionInfo;
 
 /**
  * Interface through which APP and vendor communicates.
@@ -362,4 +367,28 @@ interface IQtiImsExt {
      *@throws RemoteException if calling the IMS service results in an error.
      */
     boolean isDataChannelEnabled(int phoneId);
+
+    /**
+     * sendVosSupportStatus
+     * Send video online service status supported
+     *
+     * @param phoneId indicates the phone instance which triggered the request
+     * @param isVosSupported sends whether device supports video online service to lower layer
+     * @param listener an IQtiImsExtListener instance to indicate the response
+     * @return void
+     */
+    oneway void sendVosSupportStatus(int phoneId, boolean isVosSupported,
+        IQtiImsExtListener listener);
+
+    /**
+     * sendVosActionInfo
+     * Send user's action info like touch or move
+     *
+     * @param phoneId indicates the phone instance which triggered the request
+     * @param vosActionInfo sends user's touch or move info to lower layer
+     * @param listener an IQtiImsExtListener instance to indicate the response
+     * @return void
+     */
+    oneway void sendVosActionInfo(int phoneId, in VosActionInfo vosActionInfo,
+        IQtiImsExtListener listener);
 }
