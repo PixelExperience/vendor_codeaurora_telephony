@@ -39,6 +39,7 @@ package com.qti.extphone;
 import android.telephony.CellInfo;
 import com.qti.extphone.BearerAllocationStatus;
 import com.qti.extphone.DcParam;
+import com.qti.extphone.DualDataRecommendation;
 import com.qti.extphone.NetworkSelectionMode;
 import com.qti.extphone.NrConfig;
 import com.qti.extphone.NrConfigType;
@@ -359,4 +360,39 @@ interface IExtPhoneCallback {
      * @param - simtype array contains the current Sim Type on each Slot
      */
     void onSimTypeChanged(in QtiSimType[] simtype);
+
+    /**
+     * Response to getDualDataCapability and also called when dual data capability changes
+     *         in Modem.
+     *
+     * @param token to match request/response. Response must include same token as in request,
+     *         otherwise token is set to -1.
+     * @param status SUCCESS/FAILURE based on the modem result code
+     * @param support True if modem supports dual data feature.
+     */
+    void onDualDataCapabilityChanged(in Token token, in Status status, in boolean support);
+
+    /**
+     * Response to setDualDataUserPreference
+     * @param - token is the same token which is recived in
+     *          sendUserPreferenceForDataDuringVoiceCall
+     * @param - status SUCCESS/FAILURE based on RIL data module response
+     */
+    void setDualDataUserPreferenceResponse(in Token token, in Status status);
+
+    /**
+     * Received in the following conditions to allow/disallow internet pdn on nDDS
+     * after dual data user preference is sent as true
+     * to modem through IQtiRadioConfig#setDualDataUserPreference().
+     * Condition to send onDualDataRecommendation(NON_DDS and DATA_ALLOW):
+     *    1)UE is in DSDA sub-mode and in full concurrent condition
+     * Conditions to send onDualDataRecommendation(NON_DDS and DATA_DISALLOW):
+     *    1)UE is in DSDS sub-mode
+     *    2)UE is in TX sharing condition
+     *    3)IRAT is initiated on nDDS when UE is in L+NR RAT combo
+     *    4)nDDS is OOS
+     *
+     * @param rec <DualDataRecommendation> to allow/disallow internet pdn on nDDS.
+     */
+    void onDualDataRecommendation(in DualDataRecommendation rec);
 }

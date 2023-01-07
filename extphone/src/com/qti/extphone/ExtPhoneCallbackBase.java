@@ -41,6 +41,7 @@ import android.telephony.CellInfo;
 import android.util.Log;
 import com.qti.extphone.BearerAllocationStatus;
 import com.qti.extphone.DcParam;
+import com.qti.extphone.DualDataRecommendation;
 import com.qti.extphone.IExtPhoneCallback;
 import com.qti.extphone.NetworkSelectionMode;
 import com.qti.extphone.NrConfig;
@@ -268,5 +269,20 @@ public class ExtPhoneCallbackBase extends IExtPhoneCallback.Stub {
 
     @Override
     public void onSimTypeChanged(QtiSimType[] simtype) throws RemoteException {
+    }
+
+    @Override
+    public void onDualDataCapabilityChanged(Token token, Status status, boolean support)
+            throws RemoteException {
+    }
+
+    @Override
+    public void setDualDataUserPreferenceResponse(Token token, Status status)
+            throws RemoteException {
+    }
+
+    @Override
+    public void onDualDataRecommendation(DualDataRecommendation rec)
+            throws RemoteException {
     }
 }
