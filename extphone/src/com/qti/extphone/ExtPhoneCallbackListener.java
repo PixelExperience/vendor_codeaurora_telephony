@@ -71,6 +71,7 @@ public class ExtPhoneCallbackListener {
     public static final int EVENT_SET_SMART_DDS_SWITCH_TOGGLE_RESPONSE = 35;
     public static final int EVENT_START_NETWORK_SCAN_RESPONSE = 36;
     public static final int EVENT_STOP_NETWORK_SCAN_RESPONSE = 37;
+    public static final int EVENT_ON_CIWLAN_CAPABILITY_CHANGE = 38;
 
     private Handler mHandler;
     IExtPhoneCallback mCallback = new IExtPhoneCallbackStub(this);
