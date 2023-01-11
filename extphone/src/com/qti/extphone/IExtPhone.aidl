@@ -38,7 +38,7 @@ package com.qti.extphone;
 
 import android.telephony.ImsiEncryptionInfo;
 
-import com.qti.extphone.Token;
+import com.qti.extphone.CiwlanConfig;
 import com.qti.extphone.Client;
 import com.qti.extphone.IDepersoResCallback;
 import com.qti.extphone.IExtPhoneCallback;
@@ -47,6 +47,7 @@ import com.qti.extphone.NrConfig;
 import com.qti.extphone.QtiImeiInfo;
 import com.qti.extphone.QtiSetNetworkSelectionMode;
 import com.qti.extphone.QtiSimType;
+import com.qti.extphone.Token;
 
 interface IExtPhone {
 
@@ -568,4 +569,12 @@ interface IExtPhone {
      * @return - Integer Token can be used to compare with the response.
      */
     Token setSimType(in Client client, in QtiSimType[] simType);
+
+    /**
+     * Query the C_IWLAN mode
+     *
+     * @param - slotId slot ID
+     * @return - The C_IWLAN configuration (only vs preferred) for home and roaming
+     */
+    CiwlanConfig getCiwlanConfig(int slotId);
 }
