@@ -561,4 +561,14 @@ public class QtiCallConstants {
 
     // Video online service
     public static final String EXTRA_VIDEO_ONLINE_SERVICE_SUPPORTED = "isVosSupported";
+
+    /**
+     * The value of voice/video/text is defined according to the SRTP categories
+     * and the name in the extra is defined by QC IMS service.
+     */
+    public static final String EXTRAS_SRTP_ENCRYPTION_CATEGORY = "srtpEncryptionCategory";
+    public static final int SRTP_CATEGORY_UNENCRYPTED = 0;
+    public static final int SRTP_CATEGORY_VOICE = 1 << 0;
+    public static final int SRTP_CATEGORY_VIDEO = 1 << 1;
+    public static final int SRTP_CATEGORY_TEXT = 1 << 2;
 }
