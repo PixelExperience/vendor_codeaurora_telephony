@@ -120,6 +120,11 @@ public class ExtPhoneCallbackBase extends IExtPhoneCallback.Stub {
                 " token = " + token + " status" + status + " raf = " + raf);
     }
 
+    @Override
+    public void getQosParametersResponse(int slotId, Token token, Status status,
+                QosParametersResult result) throws RemoteException {
+    }
+
     public void onNrDcParam(int slotId, Token token, Status status, DcParam dcParam) throws
             RemoteException {
         Log.d(TAG, "UNIMPLEMENTED: onNrDcParam: slotId = " + slotId +
@@ -250,5 +255,18 @@ public class ExtPhoneCallbackBase extends IExtPhoneCallback.Stub {
 
     @Override
     public void setMsimPreferenceResponse(Token token, Status status) throws RemoteException {
+    }
+
+    @Override
+    public void onQosParametersChanged(int slotId, int cid, QosParametersResult result)
+            throws RemoteException {
+    }
+
+    @Override
+    public void setSimTypeResponse(Token token, Status status) throws RemoteException {
+    }
+
+    @Override
+    public void onSimTypeChanged(QtiSimType[] simtype) throws RemoteException {
     }
 }

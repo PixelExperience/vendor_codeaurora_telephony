@@ -396,7 +396,7 @@ public class QtiCallConstants {
 
     // Set for MT pre alerting call (unique ID to match subscription)
     // Type: int
-    public static final String EXTRA_PRE_ALERTING_CALL_PHONE_ID = " pre_alerting_call_phoneId";
+    public static final String EXTRA_PRE_ALERTING_CALL_PHONE_ID = "pre_alerting_call_phoneId";
 
     // Set for MT pre alerting call (only set when the call has ended)
     // Type: boolean
@@ -553,4 +553,9 @@ public class QtiCallConstants {
     // Data Channel call information
     public static final String EXTRA_DATA_CHANNEL_MODEM_CALL_ID = "modemCallId";
     public static final String EXTRA_IS_DATA_CHANNEL_CALL = "isDcCall";
+
+    // Intent action broadcasted when essential records are loaded.
+    // requires permission "com.qti.permission.RECEIVE_ESSENTIAL_RECORDS_LOADED".
+    public static final String ACTION_ESSENTIAL_RECORDS_LOADED =
+        "org.codeaurora.intent.action.ESSENTIAL_RECORDS_LOADED";
 }
