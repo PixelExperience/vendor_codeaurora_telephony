@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -270,7 +270,7 @@ interface IExtPhoneCallback {
 
     /**
      * Response to getSecureModeStatus
-     * @param - token is the same token which is received in setSmartDdsSwitchToggle
+     * @param - token is the same token which is passed in from getSecureModeStatus
      * @param - status SUCCESS/FAILURE based on RIL data module response
      * @param - enableStatus Secure Mode status - true: enabled, false: disabled
      */

@@ -1085,6 +1085,20 @@ public class ExtTelephonyManager {
         return null;
     }
 
+    public CiwlanConfig getCiwlanConfig(int slotId) throws RemoteException {
+        CiwlanConfig config = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return config;
+        }
+        try {
+            config = mExtTelephonyService.getCiwlanConfig(slotId);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "getCiwlanConfig ended in remote exception", e);
+        }
+        return config;
+    }
+
     public Client registerCallback(String packageName, IExtPhoneCallback callback) {
         Client client = null;
         if (!isServiceConnected()) {
