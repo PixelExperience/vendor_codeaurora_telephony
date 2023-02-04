@@ -143,6 +143,15 @@ public class QtiCallConstants {
      * CODE_CONCURRENT_CALLS_NOT_POSSIBLE} */
     public static final int CODE_CONCURRENT_CALLS_NOT_POSSIBLE = 3002;
 
+    /* Call fail error code to EPSFB failure */
+    public static final int CODE_EPSFB_FAILURE = 3003;
+
+    /* Call fail error code to TWAIT_EXPIRED */
+    public static final int CODE_TWAIT_EXPIRED = 3004;
+
+    /* Call fail error code to TCP_CONNECTION_REQ */
+    public static final int CODE_TCP_CONNECTION_REQ = 3005;
+
     // Default code to use for additional call info code.
     public static final int CODE_UNSPECIFIED = -1;
 
