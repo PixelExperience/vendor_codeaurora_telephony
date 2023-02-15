@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -244,25 +244,41 @@ interface IExtPhone {
     Token queryEndcStatus(int slotId, in Client client);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @return Client that is registered.
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     Client registerCallback(String packageName, IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @param - events that client want to listen.
+    * @return Client that is registered.
+    * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
+    */
+    Client registerCallbackWithEvents(String packageName, IExtPhoneCallback callback,
+            in int[] events);
+
+    /**
+    * @param - callback the IExtPhoneCallback to unregister.
+    * @return void
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     void unRegisterCallback(IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @return Client that is registered.
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     Client registerQtiRadioConfigCallback(String packageName, IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - callback the IExtPhoneCallback to unregister.
+    * @return void
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     void unregisterQtiRadioConfigCallback(IExtPhoneCallback callback);

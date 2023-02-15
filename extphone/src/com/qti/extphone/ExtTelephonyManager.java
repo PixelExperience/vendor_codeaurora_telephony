@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -1099,6 +1099,22 @@ public class ExtTelephonyManager {
         return client;
     }
 
+    public Client registerCallbackWithEvents(String packageName, ExtPhoneCallbackListener callback,
+            int[] events) {
+        Client client = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return client;
+        }
+        try {
+            client = mExtTelephonyService.registerCallbackWithEvents(packageName,
+                    callback.mCallback, events);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "registerCallbackWithEvents, remote exception", e);
+        }
+        return client;
+    }
+
     public void unRegisterCallback(IExtPhoneCallback callback) {
         if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
@@ -1109,6 +1125,10 @@ public class ExtTelephonyManager {
         } catch (RemoteException e) {
             Log.e(LOG_TAG, "unRegisterCallback, remote exception ", e);
         }
+    }
+
+    public void unregisterCallback(ExtPhoneCallbackListener callback) {
+        unRegisterCallback(callback.mCallback);
     }
 
     public Client registerQtiRadioConfigCallback(String packageName, IExtPhoneCallback callback) {
