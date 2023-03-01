@@ -27,7 +27,7 @@
  *
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted (subject to the limitations in the
@@ -145,25 +145,25 @@ public class QtiCarrierConfigs {
             "allow_one_way_accept_video_call";
 
     /* Config to determine if Carrier supports call composer
-     * true - if call composer is support else false
+     * true - if call composer is supported else false
      */
     public static final String KEY_CARRIER_CALL_COMPOSER_SUPPORTED =
             "carrier_call_composer_supported_bool";
 
     /* Config to determine if Carrier supports b2c enriched calling
-     * true - if b2c enriched calling is support else false
+     * true - if b2c enriched calling is supported else false
      */
     public static final String KEY_CARRIER_B2C_ENRICHED_CALLING_SUPPORTED =
             "carrier_b2c_enriched_calling_supported_bool";
 
     /* Config to determine if Carrier supports video CRS
-     * true - if video CRS is support else false
+     * true - if video CRS is supported else false
      */
     public static final String KEY_CARRIER_VIDEO_CRS_SUPPORTED =
             "carrier_video_crs_supported_bool";
 
     /* Config to determine if Carrier supports video CRBT
-     * true - if video CRBT is support else false
+     * true - if video CRBT is supported else false
      */
     public static final String KEY_CARRIER_VIDEO_CRBT_SUPPORTED =
             "config_enable_video_crbt";
@@ -199,8 +199,14 @@ public class QtiCarrierConfigs {
         "is_private_network";
 
     /* Config to determine if Carrier supports ims data channel
-     * true - if data channel is support else false
+     * true - if data channel is supported else false
      */
      public static final String KEY_CARRIER_DATA_CHANNEL_SUPPORTED =
          "carrier_data_channel_supported_bool";
+
+    /* Config to determine if Carrier supports video online service
+     * true - if video online service is supported else false
+     */
+    public static final String KEY_CARRIER_VIDEO_ONLINE_SERVICE_SUPPORTED =
+        "carrier_video_online_service_supported_bool";
 }

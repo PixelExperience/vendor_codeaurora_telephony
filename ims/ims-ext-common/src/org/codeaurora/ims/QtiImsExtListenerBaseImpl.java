@@ -24,6 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear.
  */
 
 package org.codeaurora.ims;
@@ -109,6 +113,14 @@ public class QtiImsExtListenerBaseImpl extends IQtiImsExtListener.Stub {
 
     @Override
     public void notifyDataChannelCapability(int phoneId, boolean dcCapability) {
+    }
+
+    @Override
+    public void handleSendVosSupportStatusResponse(int phoneId, int result) {
+    }
+
+    @Override
+    public void handleSendVosActionInfoResponse(int phoneId, int result) {
     }
 }
 
