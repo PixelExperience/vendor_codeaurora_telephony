@@ -593,4 +593,27 @@ interface IExtPhone {
      * @return - The C_IWLAN configuration (only vs preferred) for home and roaming
      */
     CiwlanConfig getCiwlanConfig(int slotId);
+
+    /**
+     * Request dual data capability.
+     * It is a static modem capability.
+     *
+     * @return - boolean TRUE/FALSE based on modem supporting dual data capability feature.
+     */
+     boolean getDualDataCapability();
+
+    /**
+     * Set dual data user preference.
+     * In a multi-SIM device, inform modem if user wants dual data feature or not.
+     * Modem will not send any recommendations to HLOS to support dual data
+     * if user does not opt in the feature even if UE is dual data capable.
+     *
+     * @param client - Client registered with package name to receive callbacks.
+     * @param enable - Dual data selection opted by user. True if preference is enabled.
+     * @return - Integer Token can be used to compare with the response, null Token value
+     *        can be returned if request cannot be processed.
+     *
+     * Response function is IExtPhoneCallback#setDualDataUserPreferenceResponse().
+     */
+    Token setDualDataUserPreference(in Client client, in boolean enable);
 }

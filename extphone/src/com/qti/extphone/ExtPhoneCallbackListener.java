@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.qti.extphone.BearerAllocationStatus;
 import com.qti.extphone.DcParam;
+import com.qti.extphone.DualDataRecommendation;
 import com.qti.extphone.IExtPhoneCallback;
 import com.qti.extphone.NetworkSelectionMode;
 import com.qti.extphone.NrConfig;
@@ -72,6 +73,9 @@ public class ExtPhoneCallbackListener {
     public static final int EVENT_START_NETWORK_SCAN_RESPONSE = 36;
     public static final int EVENT_STOP_NETWORK_SCAN_RESPONSE = 37;
     public static final int EVENT_ON_CIWLAN_CAPABILITY_CHANGE = 38;
+    public static final int EVENT_ON_DUAL_DATA_CAPABILITY_CHANGED = 39;
+    public static final int EVENT_SET_DUAL_DATA_USER_PREFERENCE_RESPONSE = 40;
+    public static final int EVENT_ON_DUAL_DATA_RECOMMENDATION = 41;
 
     private Handler mHandler;
     IExtPhoneCallback mCallback = new IExtPhoneCallbackStub(this);
@@ -483,6 +487,37 @@ public class ExtPhoneCallbackListener {
                             Log.e(TAG, "EVENT_STOP_NETWORK_SCAN_RESPONSE : Exception = " + e);
                         }
                         break;
+                    case EVENT_ON_DUAL_DATA_CAPABILITY_CHANGED:
+                        try {
+                            IExtPhoneCallbackStub.Result result =
+                                    (IExtPhoneCallbackStub.Result) msg.obj;
+                            ExtPhoneCallbackListener.this.onDualDataCapabilityChanged(
+                                    result.mToken, result.mStatus, (boolean)result.mData);
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "EVENT_ON_DUAL_DATA_CAPABILITY_CHANGED : Exception = " + e);
+                        }
+                        break;
+                    case EVENT_SET_DUAL_DATA_USER_PREFERENCE_RESPONSE:
+                        try {
+                            IExtPhoneCallbackStub.Result result =
+                                    (IExtPhoneCallbackStub.Result) msg.obj;
+                            ExtPhoneCallbackListener.this.setDualDataUserPreferenceResponse(
+                                    result.mToken, result.mStatus);
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "EVENT_SET_DUAL_DATA_USER_PREFERENCE_RESPONSE :" +
+                                    "Exception = " + e);
+                        }
+                        break;
+                    case EVENT_ON_DUAL_DATA_RECOMMENDATION:
+                        try {
+                            IExtPhoneCallbackStub.Result result =
+                                    (IExtPhoneCallbackStub.Result) msg.obj;
+                            ExtPhoneCallbackListener.this.onDualDataRecommendation(
+                                    (DualDataRecommendation)result.mData);
+                        } catch (RemoteException e) {
+                            Log.e(TAG, "EVENT_ON_DUAL_DATA_RECOMMENDATION : Exception = " + e);
+                        }
+                        break;
                     default :
                         Log.d(TAG, "default : " + msg.what);
                 }
@@ -702,6 +737,22 @@ public class ExtPhoneCallbackListener {
 
     public void onSimTypeChanged(QtiSimType[] simtype) throws RemoteException {
         Log.d(TAG, "UNIMPLEMENTED: onSimTypeChanged: simtype = " + simtype);
+    }
+
+    public void onDualDataCapabilityChanged(Token token, Status status, boolean support)
+            throws RemoteException {
+        Log.d(TAG, "UNIMPLEMENTED: onDualDataCapabilityChanged: support = " + support);
+    }
+
+    public void setDualDataUserPreferenceResponse(Token token, Status status)
+            throws RemoteException {
+        Log.d(TAG, "UNIMPLEMENTED: setDualDataUserPreferenceResponse: token = "
+                + token + " status = " + status);
+    }
+
+    public void onDualDataRecommendation(DualDataRecommendation rec)
+            throws RemoteException {
+        Log.d(TAG, "UNIMPLEMENTED: onDualDataRecommendation: rec = " + rec);
     }
 
     private static class IExtPhoneCallbackStub extends IExtPhoneCallback.Stub {
@@ -958,6 +1009,27 @@ public class ExtPhoneCallbackListener {
         @Override
         public void onSimTypeChanged(QtiSimType[] simtype) throws RemoteException {
             send(EVENT_ON_SIM_TYPE_CHANGED, 0, 0, new Result(-1, null, null, -1, simtype));
+        }
+
+        @Override
+        public void onDualDataCapabilityChanged(Token token, Status status, boolean support)
+                throws RemoteException {
+            send(EVENT_ON_DUAL_DATA_CAPABILITY_CHANGED, 0, 0,
+                    new Result(-1, token, status, -1, support));
+        }
+
+        @Override
+        public void setDualDataUserPreferenceResponse(Token token, Status status)
+                throws RemoteException {
+            send(EVENT_SET_DUAL_DATA_USER_PREFERENCE_RESPONSE, 0, 0,
+                    new Result(-1, token, status, -1, null));
+        }
+
+        @Override
+        public void onDualDataRecommendation(DualDataRecommendation rec)
+                throws RemoteException {
+            send(EVENT_ON_DUAL_DATA_RECOMMENDATION, 0, 0,
+                    new Result(-1, null, null, -1, rec));
         }
 
         class Result {
