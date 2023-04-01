@@ -32,36 +32,60 @@ import android.content.Context;
 import android.os.RemoteException;
 import org.codeaurora.ims.internal.ICrsCrbtListener;
 import org.codeaurora.ims.internal.ICrsCrbtController;
+import org.codeaurora.ims.utils.QtiImsExtUtils;
 
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+
+// Check the permission of the calling process
 public abstract class CrsCrbtControllerBase {
     public final class CrsCrbtBinder extends ICrsCrbtController.Stub {
 
         @Override
         public void setCrsCrbtListener(ICrsCrbtListener listener)
-            throws RemoteException{
-            CrsCrbtControllerBase.this.onSetCrsCrbtListener(listener);
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() -> {
+                try {
+                    CrsCrbtControllerBase.this.onSetCrsCrbtListener(listener);
+                } catch (RemoteException e) {
+                    throw new CompletionException(e);
+                }
+            }, "setCrsCrbtListener", mExecutor,
+            QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
         public void removeCrsCrbtListener(ICrsCrbtListener listener)
-            throws RemoteException{
-            CrsCrbtControllerBase.this.onRemoveCrsCrbtListener(listener);
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    CrsCrbtControllerBase.this.onRemoveCrsCrbtListener(listener),
+                    "removeCrsCrbtListener", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
         public boolean isPreparatorySession(String callId)
-            throws RemoteException {
-            return CrsCrbtControllerBase.this.onIsPreparatorySession(callId);
+                throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    CrsCrbtControllerBase.this.onIsPreparatorySession(callId),
+                    "isPreparatorySession", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE,
+                    mContext);
         }
 
         @Override
         public void sendSipDtmf(String requestCode)
-            throws RemoteException {
-            CrsCrbtControllerBase.this.onSendSipDtmf(requestCode);
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    CrsCrbtControllerBase.this.onSendSipDtmf(requestCode),
+                    "sendSipDtmf", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE,
+                    mContext);
         }
+
     }
 
     private ICrsCrbtController mBinder;
+    private Executor mExecutor;
+    private Context mContext;
 
     public ICrsCrbtController getBinder() {
         if (mBinder == null) {
@@ -70,24 +94,26 @@ public abstract class CrsCrbtControllerBase {
         return mBinder;
     }
 
+    public CrsCrbtControllerBase(Executor executor, Context context) {
+        mExecutor = executor;
+        mContext = context;
+    }
+
     protected void onSetCrsCrbtListener(ICrsCrbtListener listener)
         throws RemoteException {
         //no-op
     }
 
-    protected void onRemoveCrsCrbtListener(ICrsCrbtListener listener)
-        throws RemoteException {
+    protected void onRemoveCrsCrbtListener(ICrsCrbtListener listener) {
         //no-op
     }
 
-    protected boolean onIsPreparatorySession(String callId)
-        throws RemoteException {
+    protected boolean onIsPreparatorySession(String callId) {
         //no-op
         return false;
     }
 
-    protected void onSendSipDtmf(String requestCode)
-        throws RemoteException {
+    protected void onSendSipDtmf(String requestCode) {
         //no-op
     }
 }
