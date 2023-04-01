@@ -1143,6 +1143,20 @@ public class ExtTelephonyManager {
         return token;
     }
 
+    public QtiPersoUnlockStatus getSimPersoUnlockStatus(int slotId) {
+        QtiPersoUnlockStatus persoUnlockStatus = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return persoUnlockStatus;
+        }
+        try {
+            persoUnlockStatus = mExtTelephonyService.getSimPersoUnlockStatus(slotId);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "Remote exception for getSimPersoUnlockStatus", e);
+        }
+        return persoUnlockStatus;
+    }
+
     public Client registerCallback(String packageName, IExtPhoneCallback callback) {
         Client client = null;
         if (!isServiceConnected()) {

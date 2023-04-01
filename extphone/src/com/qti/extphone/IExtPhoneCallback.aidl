@@ -48,6 +48,7 @@ import com.qti.extphone.QRadioResponseInfo;
 import com.qti.extphone.QosParametersResult;
 import com.qti.extphone.QtiCallForwardInfo;
 import com.qti.extphone.QtiImeiInfo;
+import com.qti.extphone.QtiPersoUnlockStatus;
 import com.qti.extphone.SignalStrength;
 import com.qti.extphone.QtiSimType;
 import com.qti.extphone.SmsResult;
@@ -395,4 +396,12 @@ interface IExtPhoneCallback {
      * @param rec <DualDataRecommendation> to allow/disallow internet pdn on nDDS.
      */
     void onDualDataRecommendation(in DualDataRecommendation rec);
+
+    /**
+     * Indication received when persoSubState is unlocked either temporarily or permanently
+     *
+     * @param - slotId on which the persoSubState changed
+     * @param - persoUnlockStatus which can be generally temporary or permanent.
+     */
+    void onSimPersoUnlockStatusChange(int slotId, in QtiPersoUnlockStatus persoUnlockStatus);
 }

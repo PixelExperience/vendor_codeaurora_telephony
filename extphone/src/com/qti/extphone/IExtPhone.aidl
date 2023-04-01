@@ -45,6 +45,7 @@ import com.qti.extphone.IExtPhoneCallback;
 import com.qti.extphone.MsimPreference;
 import com.qti.extphone.NrConfig;
 import com.qti.extphone.QtiImeiInfo;
+import com.qti.extphone.QtiPersoUnlockStatus;
 import com.qti.extphone.QtiSetNetworkSelectionMode;
 import com.qti.extphone.QtiSimType;
 import com.qti.extphone.Token;
@@ -616,4 +617,12 @@ interface IExtPhone {
      * Response function is IExtPhoneCallback#setDualDataUserPreferenceResponse().
      */
     Token setDualDataUserPreference(in Client client, in boolean enable);
+
+    /**
+     * Query the SIM Perso unlock Status
+     *
+     * @param - slotId slot ID
+     * @return - persoUnlockStatus which can be generally temporary or permanent.
+     */
+    QtiPersoUnlockStatus getSimPersoUnlockStatus(int slotId);
 }
