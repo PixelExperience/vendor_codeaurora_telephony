@@ -22,6 +22,7 @@ import com.qti.extphone.NrConfig;
 import com.qti.extphone.NrConfigType;
 import com.qti.extphone.NrIconType;
 import com.qti.extphone.QRadioResponseInfo;
+import com.qti.extphone.QtiPersoUnlockStatus;
 import com.qti.extphone.SignalStrength;
 import com.qti.extphone.Status;
 import com.qti.extphone.Token;
@@ -76,6 +77,7 @@ public class ExtPhoneCallbackListener {
     public static final int EVENT_ON_DUAL_DATA_CAPABILITY_CHANGED = 39;
     public static final int EVENT_SET_DUAL_DATA_USER_PREFERENCE_RESPONSE = 40;
     public static final int EVENT_ON_DUAL_DATA_RECOMMENDATION = 41;
+    public static final int EVENT_ON_SIM_PERSO_UNLOCK_STATUS_CHANGE = 42;
 
     private Handler mHandler;
     IExtPhoneCallback mCallback = new IExtPhoneCallbackStub(this);
@@ -518,6 +520,17 @@ public class ExtPhoneCallbackListener {
                             Log.e(TAG, "EVENT_ON_DUAL_DATA_RECOMMENDATION : Exception = " + e);
                         }
                         break;
+                    case EVENT_ON_SIM_PERSO_UNLOCK_STATUS_CHANGE:
+                        try {
+                            IExtPhoneCallbackStub.Result result =
+                                    (IExtPhoneCallbackStub.Result) msg.obj;
+                            ExtPhoneCallbackListener.this.onSimPersoUnlockStatusChange(
+                                    result.mSlotId, (QtiPersoUnlockStatus)result.mData);
+                        } catch (RemoteException e) {
+                            Log.e(TAG,
+                                    "EVENT_ON_SIM_PERSO_UNLOCK_STATUS_CHANGE : Exception = " + e);
+                        }
+                        break;
                     default :
                         Log.d(TAG, "default : " + msg.what);
                 }
@@ -753,6 +766,12 @@ public class ExtPhoneCallbackListener {
     public void onDualDataRecommendation(DualDataRecommendation rec)
             throws RemoteException {
         Log.d(TAG, "UNIMPLEMENTED: onDualDataRecommendation: rec = " + rec);
+    }
+
+    public void onSimPersoUnlockStatusChange(int slotId, QtiPersoUnlockStatus persoUnlockStatus)
+            throws RemoteException {
+        Log.d(TAG, "UNIMPLEMENTED: onSimPersoUnlockStatusChange: slotId = "
+                + slotId + " persoUnlockStatus = " + persoUnlockStatus);
     }
 
     private static class IExtPhoneCallbackStub extends IExtPhoneCallback.Stub {
@@ -1030,6 +1049,13 @@ public class ExtPhoneCallbackListener {
                 throws RemoteException {
             send(EVENT_ON_DUAL_DATA_RECOMMENDATION, 0, 0,
                     new Result(-1, null, null, -1, rec));
+        }
+
+        @Override
+        public void onSimPersoUnlockStatusChange(int slotId, QtiPersoUnlockStatus persoUnlockStatus)
+                throws RemoteException {
+            send(EVENT_ON_SIM_PERSO_UNLOCK_STATUS_CHANGE, 0, 0,
+                    new Result(slotId, null, null, -1, persoUnlockStatus));
         }
 
         class Result {

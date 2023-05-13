@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -283,6 +283,11 @@ public class ExtPhoneCallbackBase extends IExtPhoneCallback.Stub {
 
     @Override
     public void onDualDataRecommendation(DualDataRecommendation rec)
+            throws RemoteException {
+    }
+
+    @Override
+    public void onSimPersoUnlockStatusChange(int slotId, QtiPersoUnlockStatus persoUnlockStatus)
             throws RemoteException {
     }
 }

@@ -12,9 +12,13 @@ public class CiwlanConfig implements Parcelable {
 
     private static final String TAG = "CiwlanConfig";
 
+    // On targets that support C_IWLAN modes, when there is a C_IWLAN status change from UI or UE
+    // moves between home and roaming, there will be a brief moment when the mode will be INVALID.
     public static final int INVALID = -1;
     public static final int ONLY = 0;
     public static final int PREFERRED = 1;
+    // On targets that do not support C_IWLAN modes, UNSUPPORTED will be returned.
+    public static final int UNSUPPORTED = 2;
 
     private int mHomeMode = INVALID;
     private int mRoamMode = INVALID;
@@ -35,6 +39,8 @@ public class CiwlanConfig implements Parcelable {
                 return "ONLY";
             case PREFERRED:
                 return "PREFERRED";
+            case UNSUPPORTED:
+                return "UNSUPPORTED";
             default:
                 return "INVALID";
         }
@@ -46,6 +52,8 @@ public class CiwlanConfig implements Parcelable {
                 return "ONLY";
             case PREFERRED:
                 return "PREFERRED";
+            case UNSUPPORTED:
+                return "UNSUPPORTED";
             default:
                 return "INVALID";
         }
@@ -57,6 +65,10 @@ public class CiwlanConfig implements Parcelable {
 
     public boolean isCiwlanOnlyInRoam() {
         return mRoamMode == ONLY;
+    }
+
+    public boolean isCiwlanModeSupported() {
+        return (mHomeMode != UNSUPPORTED && mRoamMode != UNSUPPORTED);
     }
 
     @Override
