@@ -71,6 +71,10 @@ public class CiwlanConfig implements Parcelable {
         return (mHomeMode != UNSUPPORTED && mRoamMode != UNSUPPORTED);
     }
 
+    public boolean isValid() {
+        return (mHomeMode != INVALID && mRoamMode != INVALID);
+    }
+
     @Override
     public int describeContents() {
         return 0;
