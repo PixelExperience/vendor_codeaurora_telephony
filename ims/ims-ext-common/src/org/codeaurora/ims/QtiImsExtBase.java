@@ -24,6 +24,10 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear.
  */
 package org.codeaurora.ims;
 
@@ -36,6 +40,7 @@ import org.codeaurora.ims.internal.IQtiImsExtListener;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
 import org.codeaurora.ims.QtiCallConstants;
+import org.codeaurora.ims.VosActionInfo;
 /**
  * Base implementation for IQtiImsExt.
  */
@@ -196,6 +201,18 @@ public abstract class QtiImsExtBase {
         public boolean isDataChannelEnabled(int phoneId) {
             return onIsDataChannelEnabled(phoneId);
         }
+
+        @Override
+        public void sendVosSupportStatus(int phoneId, boolean isVosSupported,
+                IQtiImsExtListener listener) {
+            onSendVosSupportStatus(phoneId, isVosSupported, listener);
+        }
+
+        @Override
+        public void sendVosActionInfo(int phoneId, VosActionInfo vosActionInfo,
+                IQtiImsExtListener listener) {
+            onSendVosActionInfo(phoneId, vosActionInfo, listener);
+        }
     };
 
     private QtiImsExtBinder mQtiImsExtBinder;
@@ -318,5 +335,15 @@ public abstract class QtiImsExtBase {
     protected boolean onIsDataChannelEnabled(int phoneId) {
         // no-op
         return false;
+    }
+
+    protected void onSendVosSupportStatus(int phoneId, boolean isVosSupported,
+            IQtiImsExtListener listener) {
+        // no-op
+    }
+
+    protected void onSendVosActionInfo(int phoneId, VosActionInfo vosActionInfo,
+            IQtiImsExtListener listener) {
+        // no-op
     }
 }
