@@ -39,6 +39,7 @@ import android.telephony.ims.feature.ImsFeature;
 import org.codeaurora.ims.internal.ICrsCrbtController;
 import org.codeaurora.ims.internal.IQtiImsExt;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsArController;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
 import org.codeaurora.ims.utils.QtiImsExtUtils;
@@ -309,6 +310,14 @@ public abstract class QtiImsExtBase {
                     QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
+        @Override
+        public IImsArController getArController(int phoneId)
+                throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetArController(phoneId),
+                    "getArController", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
+        }
     };
 
     private QtiImsExtBinder mQtiImsExtBinder;
@@ -453,5 +462,10 @@ public abstract class QtiImsExtBase {
     protected void onSendVosActionInfo(int phoneId, VosActionInfo vosActionInfo,
             IQtiImsExtListener listener) {
         // no-op
+    }
+
+    protected IImsArController onGetArController(int phoneId) {
+        // no-op
+        return null;
     }
 }

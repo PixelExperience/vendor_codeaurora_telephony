@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import org.codeaurora.ims.internal.ICrsCrbtController;
 import org.codeaurora.ims.internal.IQtiImsExt;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsArController;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
 import org.codeaurora.ims.utils.QtiImsExtUtils;
@@ -475,4 +476,22 @@ public class QtiImsExtManager {
             throw new QtiImsException("Remote ImsService sendVosActionInfo: " + e);
         }
     }
+
+    public ImsArManager createImsArManager(int phoneId)
+            throws QtiImsException {
+        validateInvariants(phoneId);
+        return new ImsArManager(phoneId, this);
+    }
+
+    /*package private*/
+    IImsArController getArController(int phoneId)
+            throws QtiImsException {
+        validateInvariants(phoneId);
+        try {
+            return mQtiImsExt.getArController(phoneId);
+        } catch(RemoteException e) {
+            throw new QtiImsException("Failed to retrieve ARInterface : " + e);
+        }
+    }
+
 }
