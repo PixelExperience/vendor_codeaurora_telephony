@@ -28,7 +28,7 @@
  *
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted (subject to the limitations in the
@@ -883,5 +883,11 @@ public class QtiImsExtUtils {
         return android.provider.Settings.Global.getInt(contentResolver,
                 QtiCallConstants.DATA_CHANNEL + phoneId,
                 QtiCallConstants.DATA_CHANNEL_DISABLED);
+    }
+
+    // Returns true if Carrier supports video online service
+    public static boolean isVosSupported(int phoneId, Context context) {
+        return isCarrierConfigEnabled(phoneId, context,
+                QtiCarrierConfigs.KEY_CARRIER_VIDEO_ONLINE_SERVICE_SUPPORTED);
     }
 }
