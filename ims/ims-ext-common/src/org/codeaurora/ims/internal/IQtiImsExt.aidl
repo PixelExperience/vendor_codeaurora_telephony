@@ -35,6 +35,7 @@ package org.codeaurora.ims.internal;
 import android.os.Bundle;
 import org.codeaurora.ims.internal.ICrsCrbtController;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsArController;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
 import org.codeaurora.ims.VosActionInfo;
@@ -391,4 +392,10 @@ interface IQtiImsExt {
      */
     oneway void sendVosActionInfo(int phoneId, in VosActionInfo vosActionInfo,
         IQtiImsExtListener listener);
+
+   /**
+    * Returns the IImsArInterface IBinder
+    */
+    IImsArController getArController(int phoneId);
+
 }
