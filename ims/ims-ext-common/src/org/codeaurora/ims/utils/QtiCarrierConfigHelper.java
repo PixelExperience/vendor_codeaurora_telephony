@@ -154,7 +154,7 @@ public class QtiCarrierConfigHelper {
         IntentFilter filter = new IntentFilter(CarrierConfigManager
                 .ACTION_CARRIER_CONFIG_CHANGED);
         filter.addAction(QtiCallConstants.ACTION_ESSENTIAL_RECORDS_LOADED);
-        mContext.registerReceiver(mReceiver, filter);
+        mContext.registerReceiver(mReceiver, filter, Context.RECEIVER_EXPORTED);
         mSubscriptionManager.addOnSubscriptionsChangedListener(mOnSubscriptionsChangeListener);
     }
 
