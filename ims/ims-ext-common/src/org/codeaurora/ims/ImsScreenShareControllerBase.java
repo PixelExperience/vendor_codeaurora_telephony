@@ -32,28 +32,47 @@ import android.content.Context;
 import android.os.RemoteException;
 import org.codeaurora.ims.internal.IImsScreenShareListener;
 import org.codeaurora.ims.internal.IImsScreenShareController;
+import org.codeaurora.ims.utils.QtiImsExtUtils;
+
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 
 public abstract class ImsScreenShareControllerBase {
     public final class ScreenShareBinder extends IImsScreenShareController.Stub {
 
         @Override
         public void setScreenShareListener(
-                IImsScreenShareListener listener) throws RemoteException{
-            ImsScreenShareControllerBase.this.onSetScreenShareListener(listener);
+                IImsScreenShareListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() -> {
+                    try {
+                        ImsScreenShareControllerBase.this.onSetScreenShareListener(listener);
+                    } catch (RemoteException e) {
+                        throw new CompletionException(e);
+                    }},
+                    "setScreenShareListener", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
         public void startScreenShare(int width, int height) throws RemoteException{
-            ImsScreenShareControllerBase.this.onStartScreenShare(width, height);
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    ImsScreenShareControllerBase.this.onStartScreenShare(width, height),
+                    "startScreenShare", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE,
+                    mContext);
         }
 
         @Override
         public void stopScreenShare() throws RemoteException{
-           ImsScreenShareControllerBase.this.onStopScreenShare();
+           QtiImsExtUtils.executeMethodAsync(() ->
+                    ImsScreenShareControllerBase.this.onStopScreenShare(),
+                    "stopScreenShare", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
     }
 
     private IImsScreenShareController mBinder;
+    private Executor mExecutor;
+    private Context mContext;
 
     public IImsScreenShareController getBinder() {
         if (mBinder == null) {
@@ -62,16 +81,21 @@ public abstract class ImsScreenShareControllerBase {
         return mBinder;
     }
 
+    public ImsScreenShareControllerBase(Executor executor, Context context) {
+        mExecutor = executor;
+        mContext = context;
+    }
+
     protected void onSetScreenShareListener(
             IImsScreenShareListener listener) throws RemoteException{
         //no-op
     }
 
-    protected void onStartScreenShare(int width, int height) throws RemoteException{
+    protected void onStartScreenShare(int width, int height) {
         //no-op
     }
 
-    protected void onStopScreenShare() throws RemoteException{
+    protected void onStopScreenShare() {
         //no-op
     }
 }

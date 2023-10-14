@@ -31,18 +31,28 @@
  */
 package org.codeaurora.ims;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.telephony.ims.feature.ImsFeature;
 
 import org.codeaurora.ims.internal.ICrsCrbtController;
 import org.codeaurora.ims.internal.IQtiImsExt;
 import org.codeaurora.ims.internal.IQtiImsExtListener;
+import org.codeaurora.ims.internal.IImsArController;
 import org.codeaurora.ims.internal.IImsMultiIdentityInterface;
 import org.codeaurora.ims.internal.IImsScreenShareController;
+import org.codeaurora.ims.utils.QtiImsExtUtils;
 import org.codeaurora.ims.QtiCallConstants;
 import org.codeaurora.ims.VosActionInfo;
+
+import java.util.concurrent.Executor;
+
 /**
  * Base implementation for IQtiImsExt.
+ * Introduce Executor pattern where API(s) will be called on the executor thread.
+ * Except for non-oneway API(s) which call into ImsConfigImpl as setConfig/getConfig
+ * are blocking AIDL calls.
  */
 public abstract class QtiImsExtBase {
 
@@ -54,174 +64,281 @@ public abstract class QtiImsExtBase {
         @Override
         public void setCallForwardUncondTimer(int phoneId, int startHour, int startMinute,
                 int endHour, int endMinute, int action, int condition, int serviceClass,
-                String number, IQtiImsExtListener listener) {
-            onSetCallForwardUncondTimer(phoneId, startHour, startMinute, endHour, endMinute, action,
-                condition, serviceClass, number, listener);
+                String number, IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() -> QtiImsExtBase.this.onSetCallForwardUncondTimer(
+                    phoneId, startHour, startMinute, endHour, endMinute, action,
+                    condition, serviceClass, number, listener),
+                    "setCallForwardUncondTimer", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
         public void getCallForwardUncondTimer(int phoneId, int reason, int serviceClass,
-                IQtiImsExtListener listener) {
-            onGetCallForwardUncondTimer(phoneId, reason, serviceClass, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onGetCallForwardUncondTimer(phoneId, reason,
+                    serviceClass, listener), "getCallForwardUncondTimer", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void resumePendingCall(int phoneId, int videoState) {
-            onResumePendingCall(phoneId, videoState);
+        public void resumePendingCall(int phoneId, int videoState) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onResumePendingCall(phoneId, videoState),
+                    "resumePendingCall", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void sendCancelModifyCall(int phoneId, IQtiImsExtListener listener) {
-            onSendCancelModifyCall(phoneId, listener);
+        public void sendCancelModifyCall(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSendCancelModifyCall(phoneId, listener),
+                    "sendCancelModifyCall", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void queryVopsStatus(int phoneId, IQtiImsExtListener listener) {
-            onQueryVopsStatus(phoneId, listener);
+        public void queryVopsStatus(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onQueryVopsStatus(phoneId, listener),
+                    "queryVopsStatus", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void querySsacStatus(int phoneId, IQtiImsExtListener listener) {
-            onQuerySsacStatus(phoneId, listener);
+        public void querySsacStatus(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onQuerySsacStatus(phoneId, listener),
+                    "querySsacStatus", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void registerForParticipantStatusInfo(int phoneId, IQtiImsExtListener listener) {
-            onRegisterForParticipantStatusInfo(phoneId, listener);
+        public void registerForParticipantStatusInfo(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onRegisterForParticipantStatusInfo(phoneId, listener),
+                    "registerForParticipantStatusInfo", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
         public void updateVoltePreference(int phoneId, int preference,
-                IQtiImsExtListener listener) {
-            onUpdateVoltePreference(phoneId, preference, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onUpdateVoltePreference(phoneId, preference, listener),
+                    "updateVoltePreference", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void queryVoltePreference(int phoneId, IQtiImsExtListener listener) {
-            onQueryVoltePreference(phoneId, listener);
+        public void queryVoltePreference(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onQueryVoltePreference(phoneId, listener),
+                    "queryVoltePreference", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void getHandoverConfig(int phoneId, IQtiImsExtListener listener) {
-            onGetHandoverConfig(phoneId, listener);
+        public void getHandoverConfig(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onGetHandoverConfig(phoneId, listener),
+                    "getHandoverConfig", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
         public void setHandoverConfig(int phoneId, int hoConfig,
-                IQtiImsExtListener listener) {
-            onSetHandoverConfig(phoneId, hoConfig, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSetHandoverConfig(phoneId, hoConfig, listener),
+                    "setHandoverConfig", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public void setUssdInfoListener(int phoneId, IQtiImsExtListener listener) {
-            onSetUssdInfoListener(phoneId, listener);
+        public void setUssdInfoListener(int phoneId, IQtiImsExtListener listener)
+                throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSetUssdInfoListener(phoneId, listener),
+                    "setUssdInfoListener", mExecutor, QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public int setRcsAppConfig(int phoneId, int defaultSmsApp) {
-            return onSetRcsAppConfig(phoneId, defaultSmsApp);
+        public int setRcsAppConfig(int phoneId, int defaultSmsApp) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onSetRcsAppConfig(phoneId, defaultSmsApp),
+                    "setRcsAppConfig", getBinderExecutor(), QtiImsExtUtils.MODIFY_PHONE_STATE,
+                    mContext);
         }
 
         @Override
         public void setDataChannelCapabilityListener(int phoneId,
-                IQtiImsExtListener listener) {
-           onSetDataChannelCapabilityListener(phoneId, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSetDataChannelCapabilityListener(
+                    phoneId, listener), "setDataChannelCapabilityListener", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public int getRcsAppConfig(int phoneId) {
-            return onGetRcsAppConfig(phoneId);
-
+        public int getRcsAppConfig(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetRcsAppConfig(phoneId),
+                    "getRcsAppConfig", getBinderExecutor(),
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public int setVvmAppConfig(int phoneId, int defaultVvmApp) {
-            return onSetVvmAppConfig(phoneId, defaultVvmApp);
+        public int setVvmAppConfig(int phoneId, int defaultVvmApp) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onSetVvmAppConfig(phoneId, defaultVvmApp),
+                    "setVvmAppConfig", getBinderExecutor(),
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public int getVvmAppConfig(int phoneId) {
-            return onGetVvmAppConfig(phoneId);
+        public int getVvmAppConfig(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetVvmAppConfig(phoneId),
+                    "getVvmAppConfig", getBinderExecutor(),
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public IImsMultiIdentityInterface getMultiIdentityInterface(int phoneId) {
-            return onGetMultiIdentityInterface(phoneId);
+        public IImsMultiIdentityInterface getMultiIdentityInterface(int phoneId)
+                throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetMultiIdentityInterface(phoneId),
+                    "getMultiIdentityInterface", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public IImsScreenShareController getScreenShareController(int phoneId) {
-            return onGetScreenShareController(phoneId);
+        public IImsScreenShareController getScreenShareController(int phoneId)
+                throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetScreenShareController(phoneId),
+                    "getScreenShareController", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
 
         @Override
-        public int getImsFeatureState(int phoneId) {
-            return onGetImsFeatureState(phoneId);
+        public int getImsFeatureState(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetImsFeatureState(phoneId),
+                    "getImsFeatureState", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void setAnswerExtras(int phoneId, Bundle extras) {
-            onSetAnswerExtras(phoneId, extras);
+        public void setAnswerExtras(int phoneId, Bundle extras) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSetAnswerExtras(phoneId, extras),
+                    "setAnswerExtras", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public boolean isCallComposerEnabled(int phoneId) {
-            return onIsCallComposerEnabled(phoneId);
+        public boolean isCallComposerEnabled(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onIsCallComposerEnabled(phoneId),
+                    "isCallComposerEnabled", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public ICrsCrbtController getCrsCrbtController(int phoneId) {
-            return onGetCrsCrbtController(phoneId);
+        public ICrsCrbtController getCrsCrbtController(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetCrsCrbtController(phoneId),
+                    "getCrsCrbtController", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
         public void queryCallForwardStatus(int phoneId, int reason, int serviceClass,
-                boolean expectMore, IQtiImsExtListener listener) {
-            onQueryCallForwardStatus(phoneId, reason, serviceClass, expectMore, listener);
+                boolean expectMore, IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onQueryCallForwardStatus(phoneId, reason,
+                    serviceClass, expectMore, listener),
+                    "queryCallForwardStatus", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
         public void queryCallBarring(int phoneId, int cbType, String password, int serviceClass,
-                boolean expectMore, IQtiImsExtListener listener) {
-            onQueryCallBarringStatus(phoneId, cbType, password, serviceClass, expectMore,
-                    listener);
+                boolean expectMore, IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onQueryCallBarringStatus(phoneId, cbType,
+                    password, serviceClass, expectMore, listener),
+                    "queryCallBarring", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public void exitScbm(int phoneId, IQtiImsExtListener listener) {
-            onExitScbm(phoneId, listener);
+        public void exitScbm(int phoneId, IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onExitScbm(phoneId, listener),
+                    "exitScbm", mExecutor, QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public boolean isExitScbmFeatureSupported(int phoneId) {
-            return onIsExitScbmFeatureSupported(phoneId);
+        public boolean isExitScbmFeatureSupported(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onIsExitScbmFeatureSupported(phoneId),
+                    "isExitScbmFeatureSupported", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
-        public boolean isDataChannelEnabled(int phoneId) {
-            return onIsDataChannelEnabled(phoneId);
+        public boolean isDataChannelEnabled(int phoneId) throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onIsDataChannelEnabled(phoneId),
+                    "isDataChannelEnabled", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
         public void sendVosSupportStatus(int phoneId, boolean isVosSupported,
-                IQtiImsExtListener listener) {
-            onSendVosSupportStatus(phoneId, isVosSupported, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() ->
+                    QtiImsExtBase.this.onSendVosSupportStatus(phoneId,
+                    isVosSupported, listener),
+                    "sendVosSupportStatus", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
         }
 
         @Override
         public void sendVosActionInfo(int phoneId, VosActionInfo vosActionInfo,
-                IQtiImsExtListener listener) {
-            onSendVosActionInfo(phoneId, vosActionInfo, listener);
+                IQtiImsExtListener listener) throws RemoteException {
+            QtiImsExtUtils.executeMethodAsync(() -> QtiImsExtBase.this.onSendVosActionInfo(phoneId,
+                    vosActionInfo, listener),
+                    "sendVosActionInfo", mExecutor,
+                    QtiImsExtUtils.READ_PHONE_STATE, mContext);
+        }
+
+        @Override
+        public IImsArController getArController(int phoneId)
+                throws RemoteException {
+            return QtiImsExtUtils.executeMethodAsyncForResult(() ->
+                    QtiImsExtBase.this.onGetArController(phoneId),
+                    "getArController", mExecutor,
+                    QtiImsExtUtils.MODIFY_PHONE_STATE, mContext);
         }
     };
 
     private QtiImsExtBinder mQtiImsExtBinder;
+    private Executor mExecutor;
+    private Executor mBinderExecutor = Runnable::run;
+    private Context mContext;
 
     public QtiImsExtBinder getBinder() {
         if (mQtiImsExtBinder == null) {
             mQtiImsExtBinder = new QtiImsExtBinder();
         }
         return mQtiImsExtBinder;
+    }
+
+    public QtiImsExtBase(Executor executor, Context context) {
+        mExecutor = executor;
+        mContext = context;
+    }
+
+    private Executor getBinderExecutor() {
+        return mBinderExecutor;
     }
 
     protected void onSetCallForwardUncondTimer(int phoneId, int startHour, int startMinute,
@@ -345,5 +462,10 @@ public abstract class QtiImsExtBase {
     protected void onSendVosActionInfo(int phoneId, VosActionInfo vosActionInfo,
             IQtiImsExtListener listener) {
         // no-op
+    }
+
+    protected IImsArController onGetArController(int phoneId) {
+        // no-op
+        return null;
     }
 }

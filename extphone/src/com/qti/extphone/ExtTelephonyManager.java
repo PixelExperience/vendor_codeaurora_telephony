@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -1085,6 +1085,78 @@ public class ExtTelephonyManager {
         return null;
     }
 
+    public CiwlanConfig getCiwlanConfig(int slotId) throws RemoteException {
+        CiwlanConfig config = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return config;
+        }
+        try {
+            config = mExtTelephonyService.getCiwlanConfig(slotId);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "getCiwlanConfig ended in remote exception", e);
+        }
+        return config;
+    }
+
+    /**
+     * Request dual data capability.
+     * It is a static modem capability.
+     *
+     * @return - boolean TRUE/FALSE based on modem supporting dual data capability feature.
+     */
+    public boolean getDualDataCapability() {
+        if (isServiceConnected()) {
+            try {
+                return mExtTelephonyService.getDualDataCapability();
+            } catch (RemoteException ex) {
+                Log.e(LOG_TAG, "getDualDataCapability Failed.", ex);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set dual data user preference.
+     * In a multi-SIM device, inform modem if user wants dual data feature or not.
+     * Modem will not send any recommendations to HLOS to support dual data
+     * if user does not opt in the feature even if UE is dual data capable.
+     *
+     * @param client - Client registered with package name to receive callbacks.
+     * @param enable - Dual data selection opted by user. True if preference is enabled.
+     * @return - Integer Token can be used to compare with the response, null Token value
+     *        can be returned if request cannot be processed.
+     *
+     * Response function is IExtPhoneCallback#setDualDataUserPreferenceResponse().
+     */
+    public Token setDualDataUserPreference(Client client, boolean enable) throws RemoteException {
+        Token token = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return token;
+        }
+        try {
+            token = mExtTelephonyService.setDualDataUserPreference(client, enable);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "setDualDataUserPreference ended in remote exception", e);
+        }
+        return token;
+    }
+
+    public QtiPersoUnlockStatus getSimPersoUnlockStatus(int slotId) {
+        QtiPersoUnlockStatus persoUnlockStatus = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return persoUnlockStatus;
+        }
+        try {
+            persoUnlockStatus = mExtTelephonyService.getSimPersoUnlockStatus(slotId);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "Remote exception for getSimPersoUnlockStatus", e);
+        }
+        return persoUnlockStatus;
+    }
+
     public Client registerCallback(String packageName, IExtPhoneCallback callback) {
         Client client = null;
         if (!isServiceConnected()) {
@@ -1099,6 +1171,22 @@ public class ExtTelephonyManager {
         return client;
     }
 
+    public Client registerCallbackWithEvents(String packageName, ExtPhoneCallbackListener callback,
+            int[] events) {
+        Client client = null;
+        if (!isServiceConnected()) {
+            Log.e(LOG_TAG, "service not connected!");
+            return client;
+        }
+        try {
+            client = mExtTelephonyService.registerCallbackWithEvents(packageName,
+                    callback.mCallback, events);
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, "registerCallbackWithEvents, remote exception", e);
+        }
+        return client;
+    }
+
     public void unRegisterCallback(IExtPhoneCallback callback) {
         if (!isServiceConnected()) {
             Log.e(LOG_TAG, "service not connected!");
@@ -1109,6 +1197,10 @@ public class ExtTelephonyManager {
         } catch (RemoteException e) {
             Log.e(LOG_TAG, "unRegisterCallback, remote exception ", e);
         }
+    }
+
+    public void unregisterCallback(ExtPhoneCallbackListener callback) {
+        unRegisterCallback(callback.mCallback);
     }
 
     public Client registerQtiRadioConfigCallback(String packageName, IExtPhoneCallback callback) {

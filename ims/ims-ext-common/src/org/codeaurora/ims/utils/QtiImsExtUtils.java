@@ -63,6 +63,7 @@
 
 package org.codeaurora.ims.utils;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -72,6 +73,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
+import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
@@ -91,6 +93,13 @@ import org.codeaurora.ims.QtiCallConstants;
 import org.codeaurora.ims.QtiCarrierConfigs;
 import org.codeaurora.ims.QtiImsException;
 import org.codeaurora.ims.QtiImsExtManager;
+
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * This class contains QtiImsExt specific utiltity functions.
@@ -204,6 +213,10 @@ public class QtiImsExtUtils {
     public static final int QTI_IMS_RTT_DOWNGRADE_NOT_SUPPORTED = 0;
     /*RTT upgrade not supported */
     public static final int QTI_IMS_RTT_NOT_SUPPORTED = 0;
+
+    // Phone permissions
+    public static final String READ_PHONE_STATE = Manifest.permission.READ_PHONE_STATE;
+    public static final String MODIFY_PHONE_STATE = Manifest.permission.MODIFY_PHONE_STATE;
 
     /**
      * Private constructor for QtiImsExtUtils as we don't want to instantiate this class
@@ -701,8 +714,12 @@ public class QtiImsExtUtils {
             CarrierConfigManager.KEY_RTT_DOWNGRADE_SUPPORTED_BOOL);
     }
 
-    // Returns true if previous carrier supported RTT downgrade
-    // False otherwise
+    /* @Deprecated
+     * Returns true if Carrier supports RTT downgrade
+     * False otherwise
+     * This functionality will now be supported using {@link PhoneAccount.CAPABILITY_RTT}
+     * check
+     */
     public static boolean isSimlessRttDowgradeSupported(int phoneId, Context context) {
         int simLessRttDowngradeSupportedValue = android.provider.Settings.Secure.getInt(
                 context.getContentResolver(), QtiCallConstants.
@@ -711,8 +728,12 @@ public class QtiImsExtUtils {
         return simLessRttDowngradeSupportedValue != QTI_IMS_RTT_DOWNGRADE_NOT_SUPPORTED;
     }
 
-    // Returns true if previous carrier supported RTT upgrade
-    // False otherwise
+    /* @Deprecated
+     * Returns true if previous carrier supported RTT upgrade
+     * False otherwise
+     * This functionality will now be supported using
+     * {@link PhoneAccount.CAPABILITY_DOWNGRADE_RTT} check
+     */
     public static boolean isSimlessRttSupported(int phoneId, Context context) {
         int simLessRttSupportedValue = android.provider.Settings.Secure.getInt(
                 context.getContentResolver(), QtiCallConstants.
@@ -889,5 +910,30 @@ public class QtiImsExtUtils {
     public static boolean isVosSupported(int phoneId, Context context) {
         return isCarrierConfigEnabled(phoneId, context,
                 QtiCarrierConfigs.KEY_CARRIER_VIDEO_ONLINE_SERVICE_SUPPORTED);
+    }
+
+    public static void executeMethodAsync(Runnable r, String errorLogName, Executor executor,
+            String permission, Context context) throws RemoteException {
+        context.enforceCallingOrSelfPermission(permission, errorLogName);
+        try {
+            CompletableFuture.runAsync(r, executor).join();
+        } catch (CancellationException | CompletionException e) {
+            Log.w(LOG_TAG, "executeMethodAsync for " + errorLogName + " failed with: " +
+                    e.getMessage());
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    public static <T> T executeMethodAsyncForResult(Supplier<T> r, String errorLogName,
+            Executor executor, String permission, Context context) throws RemoteException {
+        context.enforceCallingOrSelfPermission(permission, errorLogName);
+        try {
+            CompletableFuture<T> future = CompletableFuture.supplyAsync(r, executor);
+            return future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            Log.w(LOG_TAG, "executeMethodAsyncForResult for " + errorLogName + " failed with: " +
+                    e.getMessage());
+            throw new RemoteException(e.getMessage());
+        }
     }
 }

@@ -143,6 +143,15 @@ public class QtiCallConstants {
      * CODE_CONCURRENT_CALLS_NOT_POSSIBLE} */
     public static final int CODE_CONCURRENT_CALLS_NOT_POSSIBLE = 3002;
 
+    /* Call fail error code to EPSFB failure */
+    public static final int CODE_EPSFB_FAILURE = 3003;
+
+    /* Call fail error code to TWAIT_EXPIRED */
+    public static final int CODE_TWAIT_EXPIRED = 3004;
+
+    /* Call fail error code to TCP_CONNECTION_REQ */
+    public static final int CODE_TCP_CONNECTION_REQ = 3005;
+
     // Default code to use for additional call info code.
     public static final int CODE_UNSPECIFIED = -1;
 
@@ -554,6 +563,21 @@ public class QtiCallConstants {
     public static final String EXTRA_DATA_CHANNEL_MODEM_CALL_ID = "modemCallId";
     public static final String EXTRA_IS_DATA_CHANNEL_CALL = "isDcCall";
 
+    // Intent action broadcasted when essential records are loaded.
+    // requires permission "com.qti.permission.RECEIVE_ESSENTIAL_RECORDS_LOADED".
+    public static final String ACTION_ESSENTIAL_RECORDS_LOADED =
+        "org.codeaurora.intent.action.ESSENTIAL_RECORDS_LOADED";
+
     // Video online service
     public static final String EXTRA_VIDEO_ONLINE_SERVICE_SUPPORTED = "isVosSupported";
+
+    /**
+     * The value of voice/video/text is defined according to the SRTP categories
+     * and the name in the extra is defined by QC IMS service.
+     */
+    public static final String EXTRAS_SRTP_ENCRYPTION_CATEGORY = "srtpEncryptionCategory";
+    public static final int SRTP_CATEGORY_UNENCRYPTED = 0;
+    public static final int SRTP_CATEGORY_VOICE = 1 << 0;
+    public static final int SRTP_CATEGORY_VIDEO = 1 << 1;
+    public static final int SRTP_CATEGORY_TEXT = 1 << 2;
 }

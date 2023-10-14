@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -38,15 +38,17 @@ package com.qti.extphone;
 
 import android.telephony.ImsiEncryptionInfo;
 
-import com.qti.extphone.Token;
+import com.qti.extphone.CiwlanConfig;
 import com.qti.extphone.Client;
 import com.qti.extphone.IDepersoResCallback;
 import com.qti.extphone.IExtPhoneCallback;
 import com.qti.extphone.MsimPreference;
 import com.qti.extphone.NrConfig;
 import com.qti.extphone.QtiImeiInfo;
+import com.qti.extphone.QtiPersoUnlockStatus;
 import com.qti.extphone.QtiSetNetworkSelectionMode;
 import com.qti.extphone.QtiSimType;
+import com.qti.extphone.Token;
 
 interface IExtPhone {
 
@@ -244,25 +246,41 @@ interface IExtPhone {
     Token queryEndcStatus(int slotId, in Client client);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @return Client that is registered.
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     Client registerCallback(String packageName, IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @param - events that client want to listen.
+    * @return Client that is registered.
+    * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
+    */
+    Client registerCallbackWithEvents(String packageName, IExtPhoneCallback callback,
+            in int[] events);
+
+    /**
+    * @param - callback the IExtPhoneCallback to unregister.
+    * @return void
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     void unRegisterCallback(IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - packageName
+    * @param - callback the IExtPhoneCallback to register.
+    * @return Client that is registered.
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     Client registerQtiRadioConfigCallback(String packageName, IExtPhoneCallback callback);
 
     /**
-    * Async api
+    * @param - callback the IExtPhoneCallback to unregister.
+    * @return void
     * Requires permission: android.Manifest.permission.READ_PRIVILEGED_PHONE_STATE
     */
     void unregisterQtiRadioConfigCallback(IExtPhoneCallback callback);
@@ -568,4 +586,43 @@ interface IExtPhone {
      * @return - Integer Token can be used to compare with the response.
      */
     Token setSimType(in Client client, in QtiSimType[] simType);
+
+    /**
+     * Query the C_IWLAN mode
+     *
+     * @param - slotId slot ID
+     * @return - The C_IWLAN configuration (only vs preferred) for home and roaming
+     */
+    CiwlanConfig getCiwlanConfig(int slotId);
+
+    /**
+     * Request dual data capability.
+     * It is a static modem capability.
+     *
+     * @return - boolean TRUE/FALSE based on modem supporting dual data capability feature.
+     */
+     boolean getDualDataCapability();
+
+    /**
+     * Set dual data user preference.
+     * In a multi-SIM device, inform modem if user wants dual data feature or not.
+     * Modem will not send any recommendations to HLOS to support dual data
+     * if user does not opt in the feature even if UE is dual data capable.
+     *
+     * @param client - Client registered with package name to receive callbacks.
+     * @param enable - Dual data selection opted by user. True if preference is enabled.
+     * @return - Integer Token can be used to compare with the response, null Token value
+     *        can be returned if request cannot be processed.
+     *
+     * Response function is IExtPhoneCallback#setDualDataUserPreferenceResponse().
+     */
+    Token setDualDataUserPreference(in Client client, in boolean enable);
+
+    /**
+     * Query the SIM Perso unlock Status
+     *
+     * @param - slotId slot ID
+     * @return - persoUnlockStatus which can be generally temporary or permanent.
+     */
+    QtiPersoUnlockStatus getSimPersoUnlockStatus(int slotId);
 }

@@ -30,7 +30,7 @@
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
  *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -39,6 +39,7 @@ package com.qti.extphone;
 import android.telephony.CellInfo;
 import com.qti.extphone.BearerAllocationStatus;
 import com.qti.extphone.DcParam;
+import com.qti.extphone.DualDataRecommendation;
 import com.qti.extphone.NetworkSelectionMode;
 import com.qti.extphone.NrConfig;
 import com.qti.extphone.NrConfigType;
@@ -47,6 +48,7 @@ import com.qti.extphone.QRadioResponseInfo;
 import com.qti.extphone.QosParametersResult;
 import com.qti.extphone.QtiCallForwardInfo;
 import com.qti.extphone.QtiImeiInfo;
+import com.qti.extphone.QtiPersoUnlockStatus;
 import com.qti.extphone.SignalStrength;
 import com.qti.extphone.QtiSimType;
 import com.qti.extphone.SmsResult;
@@ -270,7 +272,7 @@ interface IExtPhoneCallback {
 
     /**
      * Response to getSecureModeStatus
-     * @param - token is the same token which is received in setSmartDdsSwitchToggle
+     * @param - token is the same token which is passed in from getSecureModeStatus
      * @param - status SUCCESS/FAILURE based on RIL data module response
      * @param - enableStatus Secure Mode status - true: enabled, false: disabled
      */
@@ -359,4 +361,47 @@ interface IExtPhoneCallback {
      * @param - simtype array contains the current Sim Type on each Slot
      */
     void onSimTypeChanged(in QtiSimType[] simtype);
+
+    /**
+     * Response to getDualDataCapability and also called when dual data capability changes
+     *         in Modem.
+     *
+     * @param token to match request/response. Response must include same token as in request,
+     *         otherwise token is set to -1.
+     * @param status SUCCESS/FAILURE based on the modem result code
+     * @param support True if modem supports dual data feature.
+     */
+    void onDualDataCapabilityChanged(in Token token, in Status status, in boolean support);
+
+    /**
+     * Response to setDualDataUserPreference
+     * @param - token is the same token which is recived in
+     *          sendUserPreferenceForDataDuringVoiceCall
+     * @param - status SUCCESS/FAILURE based on RIL data module response
+     */
+    void setDualDataUserPreferenceResponse(in Token token, in Status status);
+
+    /**
+     * Received in the following conditions to allow/disallow internet pdn on nDDS
+     * after dual data user preference is sent as true
+     * to modem through IQtiRadioConfig#setDualDataUserPreference().
+     * Condition to send onDualDataRecommendation(NON_DDS and DATA_ALLOW):
+     *    1)UE is in DSDA sub-mode and in full concurrent condition
+     * Conditions to send onDualDataRecommendation(NON_DDS and DATA_DISALLOW):
+     *    1)UE is in DSDS sub-mode
+     *    2)UE is in TX sharing condition
+     *    3)IRAT is initiated on nDDS when UE is in L+NR RAT combo
+     *    4)nDDS is OOS
+     *
+     * @param rec <DualDataRecommendation> to allow/disallow internet pdn on nDDS.
+     */
+    void onDualDataRecommendation(in DualDataRecommendation rec);
+
+    /**
+     * Indication received when persoSubState is unlocked either temporarily or permanently
+     *
+     * @param - slotId on which the persoSubState changed
+     * @param - persoUnlockStatus which can be generally temporary or permanent.
+     */
+    void onSimPersoUnlockStatusChange(int slotId, in QtiPersoUnlockStatus persoUnlockStatus);
 }
