@@ -77,6 +77,13 @@ public class QtiVideoCallDataUsage implements Parcelable {
     }
 
     /*
+     * This method returns LTE Data Usage (for backward compatibility)
+     */
+    public long getLteDataUsage() {
+        return getWwanDataUsage();
+    }
+
+    /*
      * This method returns WWAN Data Usage
      */
     public long getWwanDataUsage() {
