@@ -87,8 +87,15 @@ public class QtiVideoCallDataUsage implements Parcelable {
      * This method returns WWAN Data Usage
      */
     public long getWwanDataUsage() {
-        return mDataUsage.length > DATA_USAGE_WWAN ? mDataUsage[DATA_USAGE_WWAN] :
-                DATA_USAGE_INVALID_VALUE;
+        if (mUseMotoExt) {
+            return mDataUsage.length > DATA_USAGE_LTE_RX
+                    ? mDataUsage[DATA_USAGE_LTE_TX] + mDataUsage[DATA_USAGE_LTE_RX]
+                    : DATA_USAGE_INVALID_VALUE;
+        } else {
+            return mDataUsage.length > DATA_USAGE_WWAN
+                    ? mDataUsage[DATA_USAGE_WWAN]
+                    : DATA_USAGE_INVALID_VALUE;
+        }
     }
 
     public long getLteTxDataUsage() {
